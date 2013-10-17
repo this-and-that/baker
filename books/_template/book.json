@@ -1,0 +1,24 @@
+
+{
+    "hpub": 1,
+    "title": "_Template",
+    "author": ["Ken Frederick"],
+    "creator": ["Ken Frederick"],
+    "date": "2013-10-17",
+    "url": "book://",
+
+    "orientation": "portrait",
+    "zoomable": false,
+
+    "-baker-background": "#1e140f",
+    "-baker-vertical-bounce": true,
+    "-baker-media-autoplay": true,
+    "-baker-page-numbers-color": "#1e140f",
+	"-baker-page-turn-tap": false,
+	"-baker-page-turn-swipe": false,
+
+    "contents": [
+        "_template.html",
+        "_template_article.html"
+    ]
+}
