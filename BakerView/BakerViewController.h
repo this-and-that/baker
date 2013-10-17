@@ -113,9 +113,7 @@
 @property (strong, nonatomic) BakerBook *book;
 @property (nonatomic, retain) UIScrollView *scrollView;
 @property (nonatomic, retain) UIWebView *currPage;
-
 @property int currentPageNumber;
-@property BOOL barsHidden;
 
 #pragma mark - INIT
 - (id)initWithBook:(BakerBook *)bakerBook;
@@ -156,6 +154,7 @@
 #pragma mark - WEBVIEW
 - (void)webView:(UIWebView *)webView hidden:(BOOL)status animating:(BOOL)animating;
 - (void)webViewDidAppear:(UIWebView *)webView animating:(BOOL)animating;
+- (void)webView:(UIWebView *)webView dispatchHTMLEvent:(NSString *)event;
 - (void)webView:(UIWebView *)webView setCorrectOrientation:(UIInterfaceOrientation)interfaceOrientation;
 
 #pragma mark - SCREENSHOTS
@@ -181,7 +180,6 @@
 #pragma mark - BARS VISIBILITY
 - (CGRect)getNewNavigationFrame:(BOOL)hidden;
 - (void)toggleBars;
-- (void)showBars;
 - (void)showNavigationBar;
 - (void)hideBars:(NSNumber *)animated;
 - (void)handleBookProtocol:(NSURL *)url;

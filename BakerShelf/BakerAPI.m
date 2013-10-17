@@ -55,24 +55,11 @@
 - (BOOL)canGetShelfJSON {
     return ([self manifestURL] != nil);
 }
-
-- (void)getShelfJSON:(void (^)(NSData*)) callback {
-
-    if ([NSThread isMainThread]) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            NSData *data = [self getFromURL:[self manifestURL] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-            if (callback) {
-                dispatch_sync(dispatch_get_main_queue(), ^{
-                    callback(data);
-                });
-            }
-        });
-    } else {
-        NSData *data = [self getFromURL:[self manifestURL] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-        if (callback) {
-            callback(data);
-        }
+- (NSData *)getShelfJSON {
+    if ([self canGetShelfJSON]) {
+        return [self getFromURL:[self manifestURL] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     }
+    return nil;
 }
 
 #pragma mark - Purchases
@@ -80,28 +67,11 @@
 - (BOOL)canGetPurchasesJSON {
     return ([self purchasesURL] != nil);
 }
-
-- (void)getPurchasesJSON:(void (^)(NSData*)) callback  {
-
+- (NSData *)getPurchasesJSON {
     if ([self canGetPurchasesJSON]) {
-        if ([NSThread isMainThread]) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                NSData *data = [self getFromURL:[self purchasesURL] cachePolicy:NSURLRequestUseProtocolCachePolicy];
-                if (callback) {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                        callback(data);
-                    });
-                }
-            });
-        } else {
-            NSData *data = [self getFromURL:[self purchasesURL] cachePolicy:NSURLRequestUseProtocolCachePolicy];
-            if (callback) {
-                callback(data);
-            }
-        }
-    } else if (callback) {
-        callback(nil);
+        return [self getFromURL:[self purchasesURL] cachePolicy:NSURLRequestUseProtocolCachePolicy];
     }
+    return nil;
 }
 
 - (BOOL)canPostPurchaseReceipt {
@@ -158,12 +128,6 @@
     NSMutableDictionary *requestParams = [NSMutableDictionary dictionaryWithDictionary:parameters];
     [requestParams setObject:[Utils appID] forKey:@"app_id"];
     [requestParams setObject:[BakerAPI UUID] forKey:@"user_id"];
-
-    #if DEBUG
-        [requestParams setObject:@"debug" forKey:@"environment"];
-    #else
-        [requestParams setObject:@"production" forKey:@"environment"];
-    #endif
 
     NSURL *requestURL = [self replaceParameters:requestParams inURL:url];
     NSMutableURLRequest *request = nil;

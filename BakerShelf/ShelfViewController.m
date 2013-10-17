@@ -151,11 +151,10 @@
 
     self.background = [[[UIImageView alloc] init] autorelease];
 
-    self.gridView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:[[[UICollectionViewFlowLayout alloc] init] autorelease]];
+    self.gridView = [[[AQGridView alloc] init] autorelease];
     self.gridView.dataSource = self;
     self.gridView.delegate = self;
     self.gridView.backgroundColor = [UIColor clearColor];
-    [self.gridView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"cellIdentifier"];
 
     [self.view addSubview:self.background];
     [self.view addSubview:self.gridView];
@@ -214,19 +213,6 @@
     }
     self.navigationItem.leftBarButtonItems = buttonItems;
     #endif
-    
-    UIBarButtonItem *infoButton = [[[UIBarButtonItem alloc]
-                                    initWithTitle: NSLocalizedString(@"INFO_BUTTON_TEXT", nil)
-                                    style:UIBarButtonItemStylePlain
-                                    target:self
-                                    action:@selector(handleInfoButtonPressed:)]
-                                   autorelease];
-
-    // Remove file info.html if you don't want the info button to be added to the shelf navigation bar
-    NSString *infoPath = [[NSBundle mainBundle] pathForResource:@"info" ofType:@"html" inDirectory:@"info"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:infoPath]) {
-        self.navigationItem.rightBarButtonItem = infoButton;
-    }
 }
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -234,7 +220,7 @@
         [self handleBookToBeProcessed];
     }
 }
-- (NSUInteger)supportedInterfaceOrientations
+- (NSInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskAll;
 }
@@ -253,7 +239,6 @@
 
     NSString *image = @"";
     CGSize size = [UIScreen mainScreen].bounds.size;
-    int landscapePadding = 0;
 
     if (UIInterfaceOrientationIsPortrait(toInterfaceOrientation)) {
         width  = size.width;
@@ -266,14 +251,12 @@
             height = height + 12;
         }
         image  = @"shelf-bg-landscape";
-        CGFloat cellWidth = [IssueViewController getIssueCellSize].width;
-        landscapePadding = width / 4 - cellWidth / 2;
     }
 
     if (size.height == 568) {
-        image = [NSString stringWithFormat:@"%@-568h", image];
+        image = [NSString stringWithFormat:@"%@-568h.png", image];
     } else {
-        image = [NSString stringWithFormat:@"%@", image];
+        image = [NSString stringWithFormat:@"%@.png", image];
     }
 
     int bannerHeight = [ShelfViewController getBannerHeight];
@@ -281,7 +264,7 @@
     self.background.frame = CGRectMake(0, 0, width, height);
     self.background.image = [UIImage imageNamed:image];
 
-    self.gridView.frame = CGRectMake(landscapePadding, bannerHeight, width - 2 * landscapePadding, height - bannerHeight);
+    self.gridView.frame = CGRectMake(0, bannerHeight, width, height - bannerHeight);
 }
 - (IssueViewController *)createIssueViewControllerWithIssue:(BakerIssue *)issue
 {
@@ -292,29 +275,27 @@
 
 #pragma mark - Shelf data source
 
-- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
-    return 1;
-}
-
-- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+- (NSUInteger)numberOfItemsInGridView:(AQGridView *)aGridView
+{
     return [issueViewControllers count];
 }
-
-- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (AQGridViewCell *)gridView:(AQGridView *)aGridView cellForItemAtIndex:(NSUInteger)index
+{
     CGSize cellSize = [IssueViewController getIssueCellSize];
     CGRect cellFrame = CGRectMake(0, 0, cellSize.width, cellSize.height);
 
     static NSString *cellIdentifier = @"cellIdentifier";
-    UICollectionViewCell* cell = [self.gridView dequeueReusableCellWithReuseIdentifier:cellIdentifier forIndexPath:indexPath];
+    AQGridViewCell *cell = (AQGridViewCell *)[self.gridView dequeueReusableCellWithIdentifier:cellIdentifier];
 	if (cell == nil)
 	{
-		UICollectionViewCell* cell = [[[UICollectionViewCell alloc] initWithFrame:cellFrame] autorelease];
+		cell = [[[AQGridViewCell alloc] initWithFrame:cellFrame reuseIdentifier:cellIdentifier] autorelease];
+		cell.selectionStyle = AQGridViewCellSelectionStyleNone;
 
         cell.contentView.backgroundColor = [UIColor clearColor];
         cell.backgroundColor = [UIColor clearColor];
 	}
 
-    IssueViewController *controller = [self.issueViewControllers objectAtIndex:indexPath.row];
+    IssueViewController *controller = [self.issueViewControllers objectAtIndex:index];
     UIView *removableIssueView = [cell.contentView viewWithTag:42];
     if (removableIssueView) {
         [removableIssueView removeFromSuperview];
@@ -323,8 +304,8 @@
 
     return cell;
 }
-
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+- (CGSize)portraitGridCellSizeForGridView:(AQGridView *)aGridView
+{
     return [IssueViewController getIssueCellSize];
 }
 
@@ -332,99 +313,47 @@
 - (void)handleRefresh:(NSNotification *)notification {
     [self setrefreshButtonEnabled:NO];
 
-    [issuesManager refresh:^(BOOL status) {
-        if(status) {
-            self.issues = issuesManager.issues;
+    if([issuesManager refresh]) {
+        self.issues = issuesManager.issues;
 
-            [shelfStatus load];
-            for (BakerIssue *issue in self.issues) {
-                issue.price = [shelfStatus priceFor:issue.productID];
+        [purchasesManager retrievePurchasesFor:[issuesManager productIDs]];
+
+        [shelfStatus load];
+        for (BakerIssue *issue in self.issues) {
+            issue.price = [shelfStatus priceFor:issue.productID];
+        }
+
+        [self.issues enumerateObjectsUsingBlock:^(id object, NSUInteger idx, BOOL *stop) {
+            // NOTE: this block changes the issueViewController array while looping
+
+            IssueViewController *existingIvc = nil;
+            if (idx < [self.issueViewControllers count]) {
+                existingIvc = [self.issueViewControllers objectAtIndex:idx];
             }
 
-            void (^updateIssues)() = ^{
-                // Step 1: remove controllers for issues that no longer exist
-                __block NSMutableArray *discardedControllers = [NSMutableArray array];
-                [self.issueViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    IssueViewController *ivc = (IssueViewController *)obj;
-
-                    if (![self bakerIssueWithID:ivc.issue.ID]) {
-                        [discardedControllers addObject:ivc];
-                        [self.gridView deleteItemsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForItem:idx inSection:0]]];
-                    }
-                }];
-                [self.issueViewControllers removeObjectsInArray:discardedControllers];
-
-                // Step 2: add controllers for issues that did not yet exist (and refresh the ones that do exist)
-                [self.issues enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    // NOTE: this block changes the issueViewController array while looping
-                    BakerIssue *issue = (BakerIssue *)obj;
-
-                    IssueViewController *existingIvc = [self issueViewControllerWithID:issue.ID];
-
-                    if (existingIvc) {
-                        existingIvc.issue = issue;
-                    } else {
-                        IssueViewController *newIvc = [self createIssueViewControllerWithIssue:issue];
-                        [self.issueViewControllers insertObject:newIvc atIndex:idx];
-                        [self.gridView insertItemsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForItem:idx inSection:0] ] ];
-                    }
-                }];
-
-                [self.gridView reloadData];
-            };
-
-            // When first launched, the grid is not initialised, so we can't
-            // call in the "batch update" method of the grid view
-            if (self.gridView) {
-                [self.gridView performBatchUpdates:updateIssues completion:nil];
+            BakerIssue *issue = (BakerIssue*)object;
+            if (!existingIvc || ![[existingIvc issue].ID isEqualToString:issue.ID]) {
+                IssueViewController *ivc = [self createIssueViewControllerWithIssue:issue];
+                [self.issueViewControllers insertObject:ivc atIndex:idx];
+                [self.gridView insertItemsAtIndices:[NSIndexSet indexSetWithIndex:idx] withAnimation:AQGridViewItemAnimationNone];
+            } else {
+                existingIvc.issue = issue;
+                [existingIvc refreshContentWithCache:NO];
             }
-            else {
-                updateIssues();
-            }
+        }];
 
-            [purchasesManager retrievePurchasesFor:[issuesManager productIDs] withCallback:^(NSDictionary *purchases) {
-                // List of purchases has been returned, so we can refresh all issues
-                [self.issueViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-                    [(IssueViewController *)obj refreshContentWithCache:NO];
-                }];
-                [self setrefreshButtonEnabled:YES];
-            }];
-
-            [purchasesManager retrievePricesFor:issuesManager.productIDs andEnableFailureNotifications:NO];
-        } else {
-            [Utils showAlertWithTitle:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_TITLE", nil)
-                              message:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_MESSAGE", nil)
-                          buttonTitle:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_CLOSE", nil)];
-            [self setrefreshButtonEnabled:YES];
-        }
-    }];
-}
-
-- (IssueViewController *)issueViewControllerWithID:(NSString *)ID {
-    __block IssueViewController* foundController = nil;
-    [self.issueViewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        IssueViewController *ivc = (IssueViewController *)obj;
-        if ([ivc.issue.ID isEqualToString:ID]) {
-            foundController = ivc;
-            *stop = YES;
-        }
-    }];
-    return foundController;
-}
-
-- (BakerIssue *)bakerIssueWithID:(NSString *)ID {
-    __block BakerIssue *foundIssue = nil;
-    [self.issues enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        BakerIssue *issue = (BakerIssue *)obj;
-        if ([issue.ID isEqualToString:ID]) {
-            foundIssue = issue;
-            *stop = YES;
-        }
-    }];
-    return foundIssue;
+        [purchasesManager retrievePricesFor:issuesManager.productIDs andEnableFailureNotifications:NO];
+    }
+    else{
+        [Utils showAlertWithTitle:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_TITLE", nil)
+                          message:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_MESSAGE", nil)
+                      buttonTitle:NSLocalizedString(@"INTERNET_CONNECTION_UNAVAILABLE_CLOSE", nil)];
+    }
+    [self setrefreshButtonEnabled:YES];
 }
 
 #pragma mark - Store Kit
+
 - (void)handleSubscribeButtonPressed:(NSNotification *)notification {
     if (subscriptionsActionSheet.visible) {
         [subscriptionsActionSheet dismissWithClickedButtonIndex:(subscriptionsActionSheet.numberOfButtons - 1) animated:YES];
@@ -495,7 +424,6 @@
             NSLog(@"Action sheet: restore");
         } else {
             NSLog(@"Action sheet: %@", action);
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerSubscriptionPurchase" object:self]; // -> Baker Analytics Event
             [self setSubscribeButtonEnabled:NO];
             if (![purchasesManager purchase:action]){
                 [Utils showAlertWithTitle:NSLocalizedString(@"SUBSCRIPTION_FAILED_TITLE", nil)
@@ -635,10 +563,10 @@
 
 #pragma mark - Navigation management
 
-- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+- (void)gridView:(AQGridView *)myGridView didSelectItemAtIndex:(NSUInteger)index
+{
+    [myGridView deselectItemAtIndex:index animated:NO];
 }
-
 - (void)readIssue:(BakerIssue *)issue
 {
     BakerBook *book = nil;
@@ -709,55 +637,6 @@
     } else {
         self.subscribeButton.title = NSLocalizedString(@"SUBSCRIBE_BUTTON_DISABLED_TEXT", nil);
     }
-}
-
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    // Inject user_id
-    [Utils webView:webView dispatchHTMLEvent:@"init" withParams:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                                [BakerAPI UUID], @"user_id",
-                                                                [Utils appID], @"app_id",
-                                                                nil]];
-}
-
-- (void)handleInfoButtonPressed:(id)sender {
-    
-    // If the button is pressed when the info box is open, close it
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {
-        if ([infoPopover isPopoverVisible])
-        {
-            [infoPopover dismissPopoverAnimated:YES];
-            return;
-        }
-    }
-    
-    // Prepare new view
-    UIViewController *popoverContent = [[UIViewController alloc] init];
-    UIWebView *popoverView = [[UIWebView alloc] init];
-    popoverView.backgroundColor = [UIColor blackColor];
-    popoverView.delegate = self;
-    popoverContent.view = popoverView;
-    
-    // Load HTML file
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"info" ofType:@"html" inDirectory:@"info"];
-    [popoverView loadRequest:[NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]]];
-    
-    // Open view
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {
-        // On iPad use the UIPopoverController
-        infoPopover = [[UIPopoverController alloc] initWithContentViewController:popoverContent];
-        [infoPopover presentPopoverFromBarButtonItem:sender
-                            permittedArrowDirections:UIPopoverArrowDirectionUp
-                                            animated:YES];
-    }
-    else {
-        // On iPhone push the view controller to the navigation
-        [self.navigationController pushViewController:popoverContent animated:YES];
-    }
-    
-    [popoverView release];
-    [popoverContent release];
 }
 
 #pragma mark - Helper methods

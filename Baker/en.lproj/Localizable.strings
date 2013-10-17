@@ -6,9 +6,6 @@
 "PRODUCTS_REQUEST_FAILED_TITLE" = "Failure connecting to the App Store";
 "PRODUCTS_REQUEST_FAILED_CLOSE" = "Close";
 
-// Info button
-"INFO_BUTTON_TEXT" = "Info";
-
 // Subscription button
 "SUBSCRIBE_BUTTON_TEXT" = "Subscribe";
 "SUBSCRIBE_BUTTON_DISABLED_TEXT" = "Subscribing...";
@@ -48,11 +45,6 @@
 "DOWNLOAD_FAILED_TITLE" = "Download failed";
 "DOWNLOAD_FAILED_MESSAGE" = "The issue could not be downloaded";
 "DOWNLOAD_FAILED_CLOSE" = "Close";
-
-// Unzip alert
-"UNZIP_FAILED_TITLE" = "Opening failed";
-"UNZIP_FAILED_MESSAGE" = "The issue could not be opened";
-"UNZIP_FAILED_CLOSE" = "Close";
 
 // Connection alert
 "INTERNET_CONNECTION_UNAVAILABLE_TITLE" = "No Internet Connection";

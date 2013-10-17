@@ -30,7 +30,6 @@
 //
 
 #import "IndexViewController.h"
-#import "BakerViewController.h"
 
 @implementation IndexViewController
 
@@ -111,7 +110,7 @@
 }
 
 - (BOOL)isIndexViewHidden {
-    return ((BakerViewController*) webViewDelegate).barsHidden;
+    return [UIApplication sharedApplication].statusBarHidden;
 }
 
 - (BOOL)isDisabled {

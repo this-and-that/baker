@@ -107,18 +107,11 @@
 
     NSError* error = nil;
     NSData* bookJSON = [NSData dataWithContentsOfFile:bookJSONPath options:0 error:&error];
-    if (error) {
-        NSLog(@"[BakerBook] ERROR reading 'book.json': %@", error.localizedDescription);
-        return nil;
-    }
-
+    // TODO: errror handling
     NSDictionary* bookData = [NSJSONSerialization JSONObjectWithData:bookJSON
                                                              options:0
                                                                error:&error];
-    if (error) {
-        NSLog(@"[BakerBook] ERROR parsing 'book.json': %@", error.localizedDescription);
-        return nil;
-    }
+    // TODO: deal with error
 
     return [self initWithBookData:bookData];
 }
@@ -287,7 +280,6 @@
 
 
     if (![self matchParam:param againstParamsArray:shouldBeArray]) {
-        NSLog(@"[BakerBook] ERROR: param '%@' should not be an Array. Check it in 'book.json'.", param);
         return NO;
     }
 
@@ -332,7 +324,6 @@
 
 
     if (![self matchParam:param againstParamsArray:shouldBeString]) {
-        NSLog(@"[BakerBook] ERROR: param '%@' should not be a String. Check it in 'book.json'.", param);
         return NO;
     }
 
@@ -370,7 +361,6 @@
 
 
     if (![self matchParam:param againstParamsArray:shouldBeNumber]) {
-        NSLog(@"[BakerBook] ERROR: param '%@' should not be a Number. Check it in 'book.json'.", param);
         return NO;
     }
 
@@ -384,6 +374,7 @@
         }
     }
 
+    NSLog(@"[BakerBook] ERROR: param '%@' type is wrong. Check it in 'book.json'.", param);
     return NO;
 }
 

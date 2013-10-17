@@ -50,7 +50,5 @@
 + (NSString *)appID;
 + (NSDate *)dateWithFormattedString:(NSString *)string;
 + (void)showAlertWithTitle:(NSString *)title message:(NSString *)message buttonTitle:(NSString *)buttonTitle;
-+ (void)webView:(UIWebView *)webView dispatchHTMLEvent:(NSString *)event;
-+ (void)webView:(UIWebView *)webView dispatchHTMLEvent:(NSString *)event withParams:(NSDictionary *)params;
 
 @end

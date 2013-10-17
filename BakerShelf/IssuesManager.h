@@ -43,7 +43,7 @@
 + (IssuesManager *)sharedInstance;
 
 #ifdef BAKER_NEWSSTAND
--(void)refresh:(void (^)(BOOL)) callback;
+-(BOOL)refresh;
 -(NSSet *)productIDs;
 -(BOOL)hasProductIDs;
 -(BakerIssue *)latestIssue;

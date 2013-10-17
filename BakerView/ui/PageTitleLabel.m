@@ -64,12 +64,12 @@
                 titleFont = [UIFont fontWithName:@"Helvetica" size:15.0];
             }
 
-            CGSize titleTextSize = [titleText sizeWithFont:titleFont constrainedToSize:titleDimension lineBreakMode:NSLineBreakByTruncatingTail];
+            CGSize titleTextSize = [titleText sizeWithFont:titleFont constrainedToSize:titleDimension lineBreakMode:UILineBreakModeTailTruncation];
 
             self.frame = CGRectMake(0, 0, titleTextSize.width, titleTextSize.height);
             self.backgroundColor = [UIColor clearColor];
-            self.textAlignment = NSTextAlignmentCenter;
-            self.lineBreakMode = NSLineBreakByTruncatingTail;
+            self.textAlignment = UITextAlignmentCenter;
+            self.lineBreakMode = UILineBreakModeTailTruncation;
             self.numberOfLines = 0;
             self.textColor = color;
             self.alpha = alpha;

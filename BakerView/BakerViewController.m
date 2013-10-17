@@ -55,7 +55,6 @@
 @synthesize scrollView;
 @synthesize currPage;
 @synthesize currentPageNumber;
-@synthesize barsHidden;
 
 #pragma mark - INIT
 - (id)initWithBook:(BakerBook *)bakerBook {
@@ -64,11 +63,6 @@
     if (self) {
         NSLog(@"[BakerView] Init book view...");
         self.book = bakerBook;
-
-        if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
-            // Only available in iOS 7 +
-            self.automaticallyAdjustsScrollViewInsets = NO;
-        }
 
 
         // ****** DEVICE SCREEN BOUNDS
@@ -128,7 +122,6 @@
         shouldForceOrientationUpdate = YES;
 
         adjustViewsOnAppDidBecomeActive = NO;
-        barsHidden = NO;
 
         webViewBackground = nil;
 
@@ -144,11 +137,6 @@
 
     [super viewDidLoad];
     self.navigationItem.title = book.title;
-    
-    
-    // ****** SET THE INITIAL SIZE FOR EVERYTHING
-    // Avoids strange animations when opening
-    [self setPageSize:[self getCurrentInterfaceOrientation:self.interfaceOrientation]];
 
 
     // ****** SCROLLVIEW INIT
@@ -182,7 +170,7 @@
     }
 }
 - (void)viewWillAppear:(BOOL)animated {
-    
+
     if (!currentPageWillAppearUnderModal) {
 
         [super viewWillAppear:animated];
@@ -216,18 +204,17 @@
 
         [super viewDidAppear:animated];
 
-        if (![self forceOrientationUpdate]) {
-            [self willRotateToInterfaceOrientation:self.interfaceOrientation duration:0];
-            [self performSelector:@selector(hideBars:) withObject:[NSNumber numberWithBool:YES] afterDelay:0.5];
+        [self forceOrientationUpdate];
+        [self willRotateToInterfaceOrientation:self.interfaceOrientation duration:0];
+        [self performSelector:@selector(hideBars:) withObject:[NSNumber numberWithBool:YES] afterDelay:0.5];
 
-            // Condition to make sure we only call startReading the first time this callback is invoked
-            // Fixes page reload on coming back from fullscreen video (#611)
-            if (currPage == nil) {
-                [self startReading];
-            }
-
-            [self didRotateFromInterfaceOrientation:self.interfaceOrientation];
+        // Condition to make sure we only call startReading the first time this callback is invoked
+        // Fixes page reload on coming back from fullscreen video (#611)
+        if (currPage == nil) {
+            [self startReading];
         }
+
+        [self didRotateFromInterfaceOrientation:self.interfaceOrientation];
     }
 
     currentPageWillAppearUnderModal = NO;
@@ -402,8 +389,10 @@
         // ****** Spinners
         UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
         spinner.backgroundColor = [UIColor clearColor];
-        spinner.color = foregroundColor;
-        spinner.alpha = [book.bakerPageNumbersAlpha floatValue];
+        if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"5.0")) {
+            spinner.color = foregroundColor;
+            spinner.alpha = [book.bakerPageNumbersAlpha floatValue];
+        };
 
         CGRect frame = spinner.frame;
         frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
@@ -420,7 +409,7 @@
         number.backgroundColor = [UIColor clearColor];
         number.font = [UIFont fontWithName:@"Helvetica" size:40.0];
         number.textColor = foregroundColor;
-        number.textAlignment = NSTextAlignmentCenter;
+        number.textAlignment = UITextAlignmentCenter;
         number.alpha = [book.bakerPageNumbersAlpha floatValue];
 
         number.text = [NSString stringWithFormat:@"%d", i + 1];
@@ -479,14 +468,14 @@
 }
 - (void)adjustScrollViewPosition {
     int scrollViewY = 0;
-    
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0") && !barsHidden) {
+    if (![UIApplication sharedApplication].statusBarHidden) {
         scrollViewY = -20;
     }
 
     [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
-                     animations:^{ scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight); }
-                     completion:^(BOOL finished) {}];
+                     animations:^{
+                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
+                     }];
 }
 - (void)setPageSize:(NSString *)orientation {
     NSLog(@"[BakerView] Set size for orientation: %@", orientation);
@@ -684,7 +673,7 @@
             // ****** THREE CARD VIEW METHOD
 
             // Dispatch blur event on old current page
-            [Utils webView:currPage dispatchHTMLEvent:@"blur"];
+            [self webView:currPage dispatchHTMLEvent:@"blur"];
 
             // Calculate move direction and normalize tapNumber
             int direction = 1;
@@ -785,10 +774,7 @@
                     currentPageIsDelayingLoading = NO;
 
                     // Dispatch focus event on new current page
-                    [Utils webView:currPage dispatchHTMLEvent:@"focus"];
-
-                    // Dispatch BakerViewPage analytics event
-                    [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerViewPage" object:self]; // -> Baker Analytics Event
+                    [self webView:currPage dispatchHTMLEvent:@"focus"];
                 }
 
                 [self setCurrentPageHeight];
@@ -897,8 +883,6 @@
     // Since pointers can change at any time we've got to handle them directly on a slot basis.
     // Save the page pointer to a temp view to avoid code redundancy make Baker go apeshit.
     if (slot == 0) {
-        if (page == currentPageNumber)
-            [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerViewPage" object:self]; // -> Baker Analytics Event
 
         if (currPage) {
             currPage.delegate = nil;
@@ -959,7 +943,6 @@
      */
 
     //NSLog(@"[BakerView] Loading a Modal WebView with URL: %@", url.absoluteString);
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerViewModalBrowser" object:self]; // -> Baker Analytics Event
 
     myModalViewController = [[[ModalViewController alloc] initWithUrl:url] autorelease];
     myModalViewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
@@ -968,7 +951,14 @@
     // Hide the IndexView before opening modal web view
     [self hideBars:[NSNumber numberWithBool:YES]];
 
-    [self presentViewController:myModalViewController animated:YES completion:nil];
+    // Check if iOS5+ method is supported
+    if ([self respondsToSelector:@selector(presentViewController:animated:completion:)]) {
+        // iOS 5+
+        [self presentViewController:myModalViewController animated:YES completion:nil];
+    } else {
+        // iOS 4
+        [self presentModalViewController:myModalViewController animated:YES];
+    }
 
     currentPageWillAppearUnderModal = YES;
 }
@@ -977,7 +967,14 @@
      * This function is called from inside the modal view to close itself (delegate).
      */
 
-    [self dismissViewControllerAnimated:YES completion:nil];
+    // Check if iOS5+ method is supported
+    if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+        // iOS 5+
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        // iOS 4
+        [self dismissModalViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - SCROLLVIEW
@@ -1128,7 +1125,14 @@
                         [mailer setMessageBody:[body stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] isHTML:NO];
 
                         // Show the view
-                        [self presentViewController:mailer animated:YES completion:nil];
+                        // Check if iOS5+ method is supported
+                        if ([self respondsToSelector:@selector(presentViewController:animated:completion:)]) {
+                            // iOS 5+
+                            [self presentViewController:mailer animated:YES completion:nil];
+                        } else {
+                            // iOS 4
+                            [self presentModalViewController:mailer animated:YES];
+                        }
 
                         currentPageWillAppearUnderModal = YES;
 
@@ -1155,13 +1159,7 @@
                 }
                 else if (![[url scheme] isEqualToString:@""] && ![[url scheme] isEqualToString:@"http"] && ![[url scheme] isEqualToString:@"https"])
                 {
-                    if ([[UIApplication sharedApplication] canOpenURL:url]) {
-                        [[UIApplication sharedApplication] openURL:url];
-                    } else {
-                        NSLog(@"[BakerView] ERROR: No installed application to open '%@'. An application to handle the '%@' URL scheme is required.", url, [url scheme]);
-                        [Utils webView:currPage dispatchHTMLEvent:@"urlnothandled" withParams:[NSDictionary dictionaryWithObject:url forKey:@"url"]];
-                    }
-
+                    [[UIApplication sharedApplication] openURL:url];
                     return NO;
                 }
                 else
@@ -1290,7 +1288,7 @@
 
     if ([webView isEqual:currPage])
     {
-        [Utils webView:webView dispatchHTMLEvent:@"focus"];
+        [self webView:webView dispatchHTMLEvent:@"focus"];
 
         // If is the first time i load something in the currPage web view...
         if (currentPageFirstLoading)
@@ -1310,7 +1308,13 @@
         }
     }
 }
+- (void)webView:(UIWebView *)webView dispatchHTMLEvent:(NSString *)event {
+    NSString *jsDispatchEvent = [NSString stringWithFormat:@"var bakerDispatchedEvent = document.createEvent('Events');\
+                                 bakerDispatchedEvent.initEvent('%@', false, false);\
+                                 window.dispatchEvent(bakerDispatchedEvent);", event];
 
+    [webView stringByEvaluatingJavaScriptFromString:jsDispatchEvent];
+}
 - (void)webView:(UIWebView *)webView setCorrectOrientation:(UIInterfaceOrientation)interfaceOrientation {
 
     // Since the UIWebView doesn't handle orientationchange events correctly we have to set the correct value for window.orientation property ourselves
@@ -1671,45 +1675,26 @@
         return CGRectMake(navX, 20, navW, navH);
     }
 }
-- (BOOL)prefersStatusBarHidden {
-    return barsHidden;
-}
-- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation {
-    return UIStatusBarAnimationSlide;
-}
 - (void)toggleBars {
     // if modal view is up, don't toggle.
-    if (!self.presentedViewController) {
+    if (!self.modalViewController) {
         NSLog(@"[BakerView] Toggle bars visibility");
+        UIApplication *sharedApplication = [UIApplication sharedApplication];
+        BOOL hidden = sharedApplication.statusBarHidden;
 
-        if (barsHidden) {
-            [self showBars];
+        if (hidden) {
+            [sharedApplication setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+            [self performSelector:@selector(showNavigationBar) withObject:nil afterDelay:0.1];
         } else {
             [self hideBars:[NSNumber numberWithBool:YES]];
         }
-    }
-}
-- (void)showBars {
 
-    barsHidden = NO;
-
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
-        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-        [self performSelector:@selector(showNavigationBar) withObject:nil afterDelay:0.1];
-    } else {
-        [UIView animateWithDuration:UINavigationControllerHideShowBarDuration animations:^{
-            [self setNeedsStatusBarAppearanceUpdate];
-        }];
-        [self.navigationController setNavigationBarHidden:NO animated:YES];
-    }
-
-    if(![indexViewController isDisabled]) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerViewIndexOpen" object:self]; // -> Baker Analytics Event
-        [indexViewController setIndexViewHidden:NO withAnimation:YES];
+        if(![indexViewController isDisabled]) {
+            [indexViewController setIndexViewHidden:!hidden withAnimation:YES];
+        }
     }
 }
 - (void)showNavigationBar {
-
     CGRect newNavigationFrame = [self getNewNavigationFrame:NO];
     UINavigationBar *navigationBar = self.navigationController.navigationBar;
 
@@ -1726,43 +1711,26 @@
 }
 - (void)hideBars:(NSNumber *)animated {
 
-    barsHidden = YES;
-
     BOOL animateHiding = [animated boolValue];
 
-    if (SYSTEM_VERSION_LESS_THAN(@"7.0")) {
+    CGRect newNavigationFrame = [self getNewNavigationFrame:YES];
+    UINavigationBar *navigationBar = self.navigationController.navigationBar;
 
-        CGRect newNavigationFrame = [self getNewNavigationFrame:YES];
-        UINavigationBar *navigationBar = self.navigationController.navigationBar;
-
-        if (animateHiding) {
-            [UIView animateWithDuration:0.3
-                                  delay:0
-                                options:UIViewAnimationOptionCurveEaseOut
-                             animations:^{
-                                 navigationBar.frame = newNavigationFrame;
-                             }
-                             completion:^(BOOL finished) {
-                                 navigationBar.hidden = YES;
-                             }];
-        } else {
-            navigationBar.frame = newNavigationFrame;
-            navigationBar.hidden = YES;
-        }
-
+    if (animateHiding) {
+        [UIView animateWithDuration:0.3
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{
+                             navigationBar.frame = newNavigationFrame;
+                         }
+                         completion:^(BOOL finished) {
+                             navigationBar.hidden = YES;
+                         }];
         [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-
     } else {
-
-        if (animateHiding) {
-            [UIView animateWithDuration:UINavigationControllerHideShowBarDuration animations:^{
-                [self setNeedsStatusBarAppearanceUpdate];
-            }];
-        } else {
-           [self setNeedsStatusBarAppearanceUpdate];
-        }
-
-        [self.navigationController setNavigationBarHidden:YES animated:animateHiding];
+        navigationBar.frame = newNavigationFrame;
+        navigationBar.hidden = YES;
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
     }
 
     if(![indexViewController isDisabled]) {
@@ -1812,7 +1780,7 @@
 - (BOOL)shouldAutorotate {
     return YES;
 }
-- (NSUInteger)supportedInterfaceOrientations {
+- (NSInteger)supportedInterfaceOrientations {
     if ([book.orientation isEqualToString:@"portrait"]) {
         return (UIInterfaceOrientationMaskPortrait | UIInterfaceOrientationMaskPortraitUpsideDown);
     } else if ([book.orientation isEqualToString:@"landscape"]) {
@@ -1838,10 +1806,13 @@
     [self setCurrentPageHeight];
 }
 
-- (BOOL)forceOrientationUpdate {
-    // We need to run this only once to prevent looping in -viewWillAppear
+- (void)forceOrientationUpdate {
+
     if (shouldForceOrientationUpdate) {
+
+        // We need to run this only once to prevent looping in -viewWillAppear
         shouldForceOrientationUpdate = NO;
+
         UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
 
         if ( (UIInterfaceOrientationIsLandscape(interfaceOrientation) && [book.orientation isEqualToString:@"landscape"])
@@ -1849,28 +1820,21 @@
             (UIInterfaceOrientationIsPortrait(interfaceOrientation) && [book.orientation isEqualToString:@"portrait"]) ) {
 
             //NSLog(@"[BakerView] Device and book orientations are in sync");
-            return NO;
+
         } else {
+
             //NSLog(@"[BakerView] Device and book orientations are out of sync, force orientation update");
 
             // Present and dismiss a vanilla view controller to trigger the orientation update
             [self presentViewController:[UIViewController new] animated:NO completion:^{ [self dismissViewControllerAnimated:NO completion:nil]; }];
-            return YES;
-        }
 
-    } else {
-        return NO;
+        }
     }
 }
 
 #pragma mark - MEMORY
 - (void)viewWillDisappear:(BOOL)animated {
-    NSArray *viewControllers = self.navigationController.viewControllers;
-    if ([viewControllers indexOfObject:self] == NSNotFound) {
-        // Baker book is disappearing because it was popped from the navigation stack -> Baker book is closing
-        [[NSNotificationCenter defaultCenter] postNotificationName:@"BakerIssueClose" object:self]; // -> Baker Analytics Event
-        [self saveBookStatusWithScrollIndex];
-    }
+    [self saveBookStatusWithScrollIndex];
 }
 - (void)saveBookStatusWithScrollIndex {
     if (currPage != nil) {
@@ -1945,7 +1909,14 @@
     }
 
     // Remove the mail view
-    [self dismissViewControllerAnimated:YES completion:nil];
+    // Check if iOS5+ method is supported
+    if ([self respondsToSelector:@selector(dismissViewControllerAnimated:completion:)]) {
+        // iOS 5+
+        [self dismissViewControllerAnimated:YES completion:nil];
+    } else {
+        // iOS 4
+        [self dismissModalViewControllerAnimated:YES];
+    }
 }
 
 #pragma mark - INDEX VIEW
