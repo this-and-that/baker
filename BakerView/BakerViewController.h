@@ -169,6 +169,10 @@
 - (void)handleInterceptedTouch:(NSNotification *)notification;
 - (void)userDidTap:(UITouch *)touch;
 - (void)userDidScroll:(UITouch *)touch;
+- (void)getLeftTap:(UIWebView *)webView currentPage:(int)pageNumber;
+- (void)getRightTap:(UIWebView *)webView currentPage:(int)pageNumber;
+- (void)getUpTap:(UIWebView *)webView currentPage:(int)pageNumber;
+- (void)getDownTap:(UIWebView *)webView currentPage:(int)pageNumber;
 
 #pragma mark - PAGE SCROLLING
 - (void)setCurrentPageWidth;

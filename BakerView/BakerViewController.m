@@ -492,14 +492,14 @@
     }
 
     // # Flip Interaction
-    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
-                     animations:^{
-                         scrollView.frame = CGRectMake(scrollViewX, 0, pageWidth, pageHeight);
-                     }];
 //    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
 //                     animations:^{
-//                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
+//                         scrollView.frame = CGRectMake(scrollViewX, 0, pageWidth, pageHeight);
 //                     }];
+    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
+                     animations:^{
+                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
+                     }];
 }
 - (void)setPageSize:(NSString *)orientation {
     NSLog(@"[BakerView] Set size for orientation: %@", orientation);
@@ -627,6 +627,7 @@
 
     webView.mediaPlaybackRequiresUserAction = ![book.bakerMediaAutoplay boolValue];
     webView.scalesPageToFit = [book.zoomable boolValue];
+
     BOOL verticalBounce = [book.bakerVerticalBounce boolValue];
 
     for (UIView *subview in webView.subviews) {
@@ -1031,16 +1032,17 @@
 //    return CGRectMake(pageWidth * (page - 1), 0, pageWidth, pageHeight);
 }
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scroll {
-    //NSLog(@"[BakerView] Scrollview will begin dragging");
+    NSLog(@"[BakerView] Scrollview will begin dragging");
     [self hideBars:[NSNumber numberWithBool:YES]];
 }
 - (void)scrollViewDidEndDragging:(UIScrollView *)scroll willDecelerate:(BOOL)decelerate {
-    //NSLog(@"[BakerView] Scrollview did end dragging");
+    NSLog(@"[BakerView] Scrollview did end dragging");
 }
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scroll {
-    //NSLog(@"[BakerView] Scrollview will begin decelerating");
+    NSLog(@"[BakerView] Scrollview will begin decelerating");
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scroll {
+    NSLog(@"[BakerView] Scrollview did end decelerating");
 
     // # Flip Interaction
     int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
@@ -1609,14 +1611,24 @@
             int page = 0;
             if (CGRectContainsPoint(upTapArea, tapPoint)) {
                 NSLog(@"[BakerView]    Tap UP ^^^");
+                [self getUpTap:currPage currentPage:currentPageNumber];
                 page = currentPageNumber - 1;
             } else if (CGRectContainsPoint(downTapArea, tapPoint)) {
                 NSLog(@"[BakerView]    Tap DOWN vvv");
+                [self getDownTap:currPage currentPage:currentPageNumber];
                 page = currentPageNumber + 1;
             }
 
             if ([book.bakerPageTurnTap boolValue]) [self changePage:page];
         }
+        else if (CGRectContainsPoint(leftTapArea, tapPoint)) {
+            NSLog(@"[BakerView]    Tap LEFT <<<!");
+            [self getLeftTap:currPage currentPage:currentPageNumber];
+        } else if (CGRectContainsPoint(rightTapArea, tapPoint)) {
+            NSLog(@"[BakerView]    Tap RIGHT >>>!");
+            [self getRightTap:currPage currentPage:currentPageNumber];
+        }
+
 //        if (CGRectContainsPoint(upTapArea, tapPoint)) {
 //            NSLog(@"[BakerView]    Tap UP /\\!");
 //            [self scrollUpCurrentPage:([self getCurrentPageOffset] - pageHeight + 50) animating:YES];
@@ -1648,6 +1660,24 @@
     currPage.backgroundColor = webViewBackground;
     currPage.opaque = YES;
 }
+
+- (void)getLeftTap:(UIWebView *)webView currentPage:(int)pageNumber {
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onLeftTap(%d);", pageNumber];
+    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getRightTap:(UIWebView *)webView currentPage:(int)pageNumber {
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onRightTap(%d);", pageNumber];
+    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getUpTap:(UIWebView *)webView currentPage:(int)pageNumber {
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onUpTap(%d);", pageNumber];
+    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getDownTap:(UIWebView *)webView currentPage:(int)pageNumber {
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onDownTap(%d);", pageNumber];
+    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+
 
 #pragma mark - PAGE SCROLLING
 // # Flip Interaction
@@ -1683,8 +1713,7 @@
 
     return currentPageOffset;
 }
-// # Flip Interaction
-// TODO: add javascript call backs
+
 - (void)scrollUpCurrentPage:(int)targetOffset animating:(BOOL)animating {
 
     if ([self getCurrentPageOffset] > 0)
@@ -1697,9 +1726,7 @@
 }
 - (void)scrollDownCurrentPage:(int)targetOffset animating:(BOOL)animating {
 
-    // # Flip Interaction
-    int currentPageMaxScroll = currentPageWidth - pageWidth;
-//    int currentPageMaxScroll = currentPageHeight - pageHeight;
+    int currentPageMaxScroll = currentPageHeight - pageHeight;
     if ([self getCurrentPageOffset] < currentPageMaxScroll)
     {
         if (targetOffset > currentPageMaxScroll) targetOffset = currentPageMaxScroll;
@@ -1737,9 +1764,11 @@
             int currentPageOffset = [self getCurrentPageOffset];
 
             if (offset > currentPageOffset) {
-                [self scrollDownCurrentPage:offset animating:animating];
+                // # Flip Interaction
+//                [self scrollDownCurrentPage:offset animating:animating];
             } else if (offset < currentPageOffset) {
-                [self scrollUpCurrentPage:offset animating:animating];
+                // # Flip Interaction
+//                [self scrollUpCurrentPage:offset animating:animating];
             }
         }
 
@@ -1785,7 +1814,7 @@
     UINavigationBar *navigationBar = self.navigationController.navigationBar;
 
     // TODO: move navigation bar to top
-    // is the Y:0 at the bottom?
+    // is the Y:0 at the bottom? Yes.
     navigationBar.frame = CGRectMake(newNavigationFrame.origin.x, -24, newNavigationFrame.size.width, newNavigationFrame.size.height);
     navigationBar.hidden = NO;
 

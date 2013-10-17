@@ -11,11 +11,12 @@
     "zoomable": false,
 
     "-baker-background": "#1e140f",
-    "-baker-vertical-bounce": true,
+    "-baker-vertical-bounce": false,
     "-baker-media-autoplay": true,
     "-baker-page-numbers-color": "#1e140f",
 
     "contents": [
+        "index.html",
         "_template.html",
         "_template_article.html"
     ]

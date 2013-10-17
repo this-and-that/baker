@@ -75,7 +75,7 @@
 		<!-- build:js scripts/vendor/jquery.js -->
 		<!-- JQUERY -->
 		<script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
-		<!-- script type="text/javascript" src="bower_components/onepage-scroll/jquery.onepage-scroll.js"></script -->
+		<script type="text/javascript" src="bower_components/onepage-scroll/jquery.onepage-scroll.js"></script>
 		<script type="text/javascript" src="bower_components/Lettering.js/jquery.lettering.js"></script>
 		<!-- endbuild -->
 
@@ -90,6 +90,19 @@
 		<!-- page specific -->
 		<script type="text/javascript">
 			filename = null;
+
+            function onLeftTap(index) {
+                alert( index );
+            };
+            function onRightTap(index) {
+                alert( index );
+            };
+            function onUpTap(index) {
+                alert( index );
+            };
+            function onDownTap(index) {
+                alert( index );
+            };
 		</script>
 
 
@@ -283,7 +296,7 @@
 						</div>
 						<div class="row">
 							<div class="col-sm-3">
-								<h1 class="black">&ndash;1</h1>
+								<h1 class="black"><a href="javascript:test(15);">&ndash;1</a></h1>
 							</div>
 						</div>
 					</div>
@@ -298,20 +311,7 @@
 			 -  Page 2
 			 -
 			 - ------------------------------------------------------------------------ -->
-			<div id="page2" class="page">
-
-				<iframe src="_template_canvas.html" class="scale" scrolling="no"></iframe>
-
-			</div> <!-- end page -->
-
-
-
-			<!-------------------------------------------------------------------------
-			 -
-			 -  Page 3
-			 -
-			 - ------------------------------------------------------------------------ -->
-			<div id="page3" class="page blue">
+			<div id="page2" class="page blue">
 
 				<div class="align-middle">
 					<div class="middle">

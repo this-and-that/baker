@@ -59,7 +59,7 @@
           startY = touches[0].pageY;
           $this.bind('touchmove', touchmove);
         }
-        event.preventDefault();
+//        event.preventDefault();
       };
 
       function touchmove(event) {
@@ -84,7 +84,7 @@
             $this.unbind('touchmove', touchmove);
           }
         }
-        event.preventDefault();
+//        event.preventDefault();
       };
 
       });
