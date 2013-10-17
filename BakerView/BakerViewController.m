@@ -380,7 +380,9 @@
 
 
         // ****** Background
-        UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(pageWidth * i, 0, pageWidth, pageHeight)];
+        // # Flip Interaction
+        UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(0, pageHeight * i, pageWidth, pageHeight)];
+//        UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(pageWidth * i, 0, pageWidth, pageHeight)];
         [self setImageFor:backgroundView];
         [scrollView addSubview:backgroundView];
         [backgroundView release];
@@ -395,8 +397,11 @@
         };
 
         CGRect frame = spinner.frame;
-        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
-        frame.origin.y = (pageHeight - frame.size.height) / 2;
+        // # Flip Interaction
+        frame.origin.x = (pageWidth - frame.size.height) / 2;
+        frame.origin.y = pageHeight * i + (pageHeight - frame.size.height) / 2;
+//        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
+//        frame.origin.y = (pageHeight - frame.size.height) / 2;
         spinner.frame = frame;
 
         [scrollView addSubview:spinner];
@@ -405,7 +410,12 @@
 
 
         // ****** Numbers
-        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth * i + (pageWidth - 115) / 2, pageHeight / 2 - 55, 115, 30)];
+        // # Flip Interaction
+        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth / 2 - 115,
+                                                                    pageHeight * i + (pageHeight - 55) / 2,
+                                                                    115,
+                                                                    30)];
+//        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth * i + (pageWidth - 115) / 2, pageHeight / 2 - 55, 115, 30)];
         number.backgroundColor = [UIColor clearColor];
         number.font = [UIFont fontWithName:@"Helvetica" size:40.0];
         number.textColor = foregroundColor;
@@ -423,7 +433,12 @@
 
         // ****** Title
         PageTitleLabel *title = [[PageTitleLabel alloc]initWithFile:[pages objectAtIndex: i] color:foregroundColor alpha:[book.bakerPageNumbersAlpha floatValue]];
-        [title setX:(pageWidth * i + ((pageWidth - title.frame.size.width) / 2)) Y:(pageHeight / 2 + 20)];
+        // # Flip Interaction
+        // Necessary?
+        // + 20 is for clock-bar height
+        [title setX:( pageWidth / 2 )
+                  Y:( pageHeight * i + ((pageHeight - title.frame.size.height) / 2 ) + 20 )];
+//        [title setX:(pageWidth * i + ((pageWidth - title.frame.size.width) / 2)) Y:(pageHeight / 2 + 20)];
         [scrollView addSubview:title];
         [title release];
 
@@ -467,15 +482,24 @@
     [self lockPage:[NSNumber numberWithBool:NO]];
 }
 - (void)adjustScrollViewPosition {
+    // # Flip Interaction
+    int scrollViewX = 0;
     int scrollViewY = 0;
     if (![UIApplication sharedApplication].statusBarHidden) {
+        // # Flip Interaction
+        scrollViewX = 0;
         scrollViewY = -20;
     }
 
+    // # Flip Interaction
     [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
                      animations:^{
-                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
+                         scrollView.frame = CGRectMake(scrollViewX, 0, pageWidth, pageHeight);
                      }];
+//    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
+//                     animations:^{
+//                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
+//                     }];
 }
 - (void)setPageSize:(NSString *)orientation {
     NSLog(@"[BakerView] Set size for orientation: %@", orientation);
@@ -490,7 +514,9 @@
 
     [self setTappableAreaSize];
 
-    scrollView.contentSize = CGSizeMake(pageWidth * totalPages, pageHeight);
+    // # Flip Interaction
+    scrollView.contentSize = CGSizeMake(pageWidth, pageHeight * totalPages);
+//    scrollView.contentSize = CGSizeMake(pageWidth * totalPages, pageHeight);
 }
 - (void)setTappableAreaSize {
     //NSLog(@"[BakerView] Set tappable area size");
@@ -529,22 +555,31 @@
                     CGRect frame = value.frame;
                     if ([key isEqualToString:@"spinner"]) {
 
-                        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
-                        frame.origin.y = (pageHeight - frame.size.height) / 2;
+                        // # Flip Interaction
+                        frame.origin.x = (pageWidth - frame.size.width) / 2;
+                        frame.origin.y = pageHeight * i + (pageHeight - frame.size.height) / 2;
+//                        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
+//                        frame.origin.y = (pageHeight - frame.size.height) / 2;
                         value.frame = frame;
                         value.hidden = NO;
 
                     } else if ([key isEqualToString:@"number"]) {
 
-                        frame.origin.x = pageWidth * i + (pageWidth - 115) / 2;
-                        frame.origin.y = pageHeight / 2 - 55;
+                        // # Flip Interaction
+                        frame.origin.x = pageWidth / 2 - 115;
+                        frame.origin.y = pageHeight * i + (pageHeight - 55) / 2;
+//                        frame.origin.x = pageWidth * i + (pageWidth - 115) / 2;
+//                        frame.origin.y = pageHeight / 2 - 55;
                         value.frame = frame;
                         value.hidden = NO;
 
                     } else if ([key isEqualToString:@"title"]) {
 
-                        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
-                        frame.origin.y = pageHeight / 2 + 20;
+                        // # Flip Interaction
+                        frame.origin.x = pageWidth / 2;
+                        frame.origin.y = pageHeight * i + (pageHeight - frame.size.height) / 2 + 20;
+//                        frame.origin.x = pageWidth * i + (pageWidth - frame.size.width) / 2;
+//                        frame.origin.y = pageHeight / 2 + 20;
                         value.frame = frame;
                         value.hidden = NO;
 
@@ -552,7 +587,9 @@
 
                         [self setImageFor:(UIImageView *)value];
 
-                        frame.origin.x = pageWidth * i;
+                        // # Flip Interaction
+                        frame.origin.y = pageHeight * i;
+//                        frame.origin.x = pageWidth * i;
                         frame.size.width = pageWidth;
                         frame.size.height = pageHeight;
                         value.frame = frame;
@@ -706,13 +743,17 @@
 
                     // Moved away for 2 pages: RELOAD CURRENT page
                     if (direction < 0) {
-                        // Move LEFT <<<
+                        // # Flip Interaction
+                        // MOVE UP ^^^
+//                        // Move LEFT <<<
                         [prevPage removeFromSuperview];
                         UIWebView *tmpView = prevPage;
                         prevPage = nextPage;
                         nextPage = tmpView;
                     } else {
-                        // Move RIGHT >>>
+                        // # Flip Interaction
+                        // MOVE DOWN vvv
+//                        // Move RIGHT >>>
                         [nextPage removeFromSuperview];
                         UIWebView *tmpView = nextPage;
                         nextPage = prevPage;
@@ -731,7 +772,9 @@
                 } else if (tapNumber == 1) {
 
                     if (direction < 0) {
-                        // ****** Move LEFT <<<
+                        // # Flip Interaction
+                        // MOVE UP ^^^
+//                        // ****** Move LEFT <<<
                         [prevPage removeFromSuperview];
                         UIWebView *tmpView = prevPage;
                         prevPage = currPage;
@@ -739,7 +782,9 @@
                         nextPage = tmpView;
 
                     } else {
-                        // ****** Move RIGHT >>>
+                        // # Flip Interaction
+                        // MOVE DOWN vvv
+//                        // ****** Move RIGHT >>>
                         [nextPage removeFromSuperview];
                         UIWebView *tmpView = nextPage;
                         nextPage = currPage;
@@ -777,7 +822,9 @@
                     [self webView:currPage dispatchHTMLEvent:@"focus"];
                 }
 
-                [self setCurrentPageHeight];
+                // # Flip Interaction
+                [self setCurrentPageWidth];
+//                [self setCurrentPageHeight];
 
                 tapNumber = 0;
                 if (direction < 0) {
@@ -979,7 +1026,9 @@
 
 #pragma mark - SCROLLVIEW
 - (CGRect)frameForPage:(int)page {
-    return CGRectMake(pageWidth * (page - 1), 0, pageWidth, pageHeight);
+    // # Flip Interaction
+    return CGRectMake(0, pageHeight * (page - 1), pageWidth, pageHeight);
+//    return CGRectMake(pageWidth * (page - 1), 0, pageWidth, pageHeight);
 }
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scroll {
     //NSLog(@"[BakerView] Scrollview will begin dragging");
@@ -993,7 +1042,9 @@
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scroll {
 
-    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
+    // # Flip Interaction
+    int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
+//    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
     NSLog(@"[BakerView] Swiping to page: %d", page);
 
     if (currentPageNumber != page) {
@@ -1469,7 +1520,9 @@
         pageSize = CGSizeMake(screenBounds.size.height, screenBounds.size.width);
     }
 
-    screenshotView.frame = CGRectMake(pageSize.width * i, 0, pageSize.width, pageSize.height);
+    // # Flip Interaction
+    screenshotView.frame = CGRectMake(0, pageSize.height * i, pageSize.width, pageSize.height);
+//    screenshotView.frame = CGRectMake(pageSize.width * i, 0, pageSize.width, pageSize.height);
 
     BOOL alreadyPlaced = NO;
     UIImageView *oldScreenshot = [attachedScreenshot objectForKey:num];
@@ -1551,24 +1604,37 @@
     // Swipe or scroll the page.
     if (!currentPageIsLocked)
     {
-        if (CGRectContainsPoint(upTapArea, tapPoint)) {
-            NSLog(@"[BakerView]    Tap UP /\\!");
-            [self scrollUpCurrentPage:([self getCurrentPageOffset] - pageHeight + 50) animating:YES];
-        } else if (CGRectContainsPoint(downTapArea, tapPoint)) {
-            NSLog(@"[BakerView]    Tap DOWN \\/");
-            [self scrollDownCurrentPage:([self getCurrentPageOffset] + pageHeight - 50) animating:YES];
-        } else if (CGRectContainsPoint(leftTapArea, tapPoint) || CGRectContainsPoint(rightTapArea, tapPoint)) {
+        // # Flip Interaction
+        if (CGRectContainsPoint(upTapArea, tapPoint) || CGRectContainsPoint(downTapArea, tapPoint)) {
             int page = 0;
-            if (CGRectContainsPoint(leftTapArea, tapPoint)) {
-                NSLog(@"[BakerView]    Tap LEFT >>>");
+            if (CGRectContainsPoint(upTapArea, tapPoint)) {
+                NSLog(@"[BakerView]    Tap UP ^^^");
                 page = currentPageNumber - 1;
-            } else if (CGRectContainsPoint(rightTapArea, tapPoint)) {
-                NSLog(@"[BakerView]    Tap RIGHT <<<");
+            } else if (CGRectContainsPoint(downTapArea, tapPoint)) {
+                NSLog(@"[BakerView]    Tap DOWN vvv");
                 page = currentPageNumber + 1;
             }
 
             if ([book.bakerPageTurnTap boolValue]) [self changePage:page];
         }
+//        if (CGRectContainsPoint(upTapArea, tapPoint)) {
+//            NSLog(@"[BakerView]    Tap UP /\\!");
+//            [self scrollUpCurrentPage:([self getCurrentPageOffset] - pageHeight + 50) animating:YES];
+//        } else if (CGRectContainsPoint(downTapArea, tapPoint)) {
+//            NSLog(@"[BakerView]    Tap DOWN \\/");
+//            [self scrollDownCurrentPage:([self getCurrentPageOffset] + pageHeight - 50) animating:YES];
+//        } else if (CGRectContainsPoint(leftTapArea, tapPoint) || CGRectContainsPoint(rightTapArea, tapPoint)) {
+//            int page = 0;
+//            if (CGRectContainsPoint(leftTapArea, tapPoint)) {
+//                NSLog(@"[BakerView]    Tap LEFT >>>");
+//                page = currentPageNumber - 1;
+//            } else if (CGRectContainsPoint(rightTapArea, tapPoint)) {
+//                NSLog(@"[BakerView]    Tap RIGHT <<<");
+//                page = currentPageNumber + 1;
+//            }
+//
+//            if ([book.bakerPageTurnTap boolValue]) [self changePage:page];
+//        }
         else if (touch.tapCount == 2) {
             //NSLog(@"[BakerView]     Index Double Tap: Bars Toggled");
             [self toggleBars];
@@ -1584,6 +1650,16 @@
 }
 
 #pragma mark - PAGE SCROLLING
+// # Flip Interaction
+- (void)setCurrentPageWidth {
+    for (UIView *subview in currPage.subviews) {
+        if ([subview isKindOfClass:[UIScrollView class]]) {
+            CGSize size = ((UIScrollView *)subview).contentSize;
+            //NSLog(@"[BakerView] Setting current page width from %d to %f", currentPageWidth, size.width);
+            currentPageWidth = size.width;
+        }
+    }
+}
 - (void)setCurrentPageHeight {
     for (UIView *subview in currPage.subviews) {
         if ([subview isKindOfClass:[UIScrollView class]]) {
@@ -1595,14 +1671,20 @@
 }
 - (int)getCurrentPageOffset {
 
-    int currentPageOffset = [[currPage stringByEvaluatingJavaScriptFromString:@"window.scrollY;"] intValue];
+    // # Flip Interaction
+    int currentPageOffset = [[currPage stringByEvaluatingJavaScriptFromString:@"window.scrollX;"] intValue];
+//    int currentPageOffset = [[currPage stringByEvaluatingJavaScriptFromString:@"window.scrollY;"] intValue];
     if (currentPageOffset < 0) return 0;
 
-    int currentPageMaxScroll = currentPageHeight - pageHeight;
+    // # Flip Interaction
+    int currentPageMaxScroll = currentPageWidth - pageWidth;
+//    int currentPageMaxScroll = currentPageHeight - pageHeight;
     if (currentPageOffset > currentPageMaxScroll) return currentPageMaxScroll;
 
     return currentPageOffset;
 }
+// # Flip Interaction
+// TODO: add javascript call backs
 - (void)scrollUpCurrentPage:(int)targetOffset animating:(BOOL)animating {
 
     if ([self getCurrentPageOffset] > 0)
@@ -1615,7 +1697,9 @@
 }
 - (void)scrollDownCurrentPage:(int)targetOffset animating:(BOOL)animating {
 
-    int currentPageMaxScroll = currentPageHeight - pageHeight;
+    // # Flip Interaction
+    int currentPageMaxScroll = currentPageWidth - pageWidth;
+//    int currentPageMaxScroll = currentPageHeight - pageHeight;
     if ([self getCurrentPageOffset] < currentPageMaxScroll)
     {
         if (targetOffset > currentPageMaxScroll) targetOffset = currentPageMaxScroll;
@@ -1628,7 +1712,9 @@
 - (void)scrollPage:(UIWebView *)webView to:(NSString *)offset animating:(BOOL)animating {
     [self hideBars:[NSNumber numberWithBool:YES]];
 
-    NSString *jsCommand = [NSString stringWithFormat:@"window.scrollTo(0,%@);", offset];
+    // # Flip Interaction
+    NSString *jsCommand = [NSString stringWithFormat:@"window.scrollTo(%@,0);", offset];
+//    NSString *jsCommand = [NSString stringWithFormat:@"window.scrollTo(0,%@);", offset];
     if (animating) {
         [UIView animateWithDuration:0.35 animations:^{ [webView stringByEvaluatingJavaScriptFromString:jsCommand]; }];
     } else {
@@ -1698,6 +1784,8 @@
     CGRect newNavigationFrame = [self getNewNavigationFrame:NO];
     UINavigationBar *navigationBar = self.navigationController.navigationBar;
 
+    // TODO: move navigation bar to top
+    // is the Y:0 at the bottom?
     navigationBar.frame = CGRectMake(newNavigationFrame.origin.x, -24, newNavigationFrame.size.width, newNavigationFrame.size.height);
     navigationBar.hidden = NO;
 

@@ -98,6 +98,7 @@
     int pageWidth;
     int pageHeight;
     int currentPageHeight;
+    int currentPageWidth;
 
     NSString *URLDownload;
     Downloader *downloader;
@@ -170,6 +171,7 @@
 - (void)userDidScroll:(UITouch *)touch;
 
 #pragma mark - PAGE SCROLLING
+- (void)setCurrentPageWidth;
 - (void)setCurrentPageHeight;
 - (int)getCurrentPageOffset;
 - (void)scrollUpCurrentPage:(int)offset animating:(BOOL)animating;

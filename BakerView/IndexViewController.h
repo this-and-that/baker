@@ -38,6 +38,7 @@
     UIScrollView *indexScrollView;
     UIViewController <UIWebViewDelegate> *webViewDelegate;
 
+    int pageX;
     int pageY;
     int pageWidth;
     int pageHeight;

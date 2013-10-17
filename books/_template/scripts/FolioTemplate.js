@@ -52,7 +52,7 @@ var circle;
 function Setup() {
 
 	circle = new Path.Circle(
-		new Point(0,0),
+		view.bounds.center,
 		100
 	);
 	circle.fillColor = new Color( Math.random(),Math.random(),Math.random() );

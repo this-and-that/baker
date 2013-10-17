@@ -265,6 +265,7 @@ function orientationChange() {
 		angle = 0;
 	}
 
+    console.log( '~~~ orientationChange(): ' + window.orientation + ' ~~~' );
 
 	/*
 	 *	Pages

@@ -14,8 +14,6 @@
     "-baker-vertical-bounce": true,
     "-baker-media-autoplay": true,
     "-baker-page-numbers-color": "#1e140f",
-	"-baker-page-turn-tap": false,
-	"-baker-page-turn-swipe": false,
 
     "contents": [
         "_template.html",
