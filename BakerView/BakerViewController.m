@@ -410,41 +410,51 @@
 
 
         // ****** Numbers
-        // # Flip Interaction
-        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth / 2 - 115,
-                                                                    pageHeight * i + (pageHeight - 55) / 2,
-                                                                    115,
-                                                                    30)];
-//        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth * i + (pageWidth - 115) / 2, pageHeight / 2 - 55, 115, 30)];
-        number.backgroundColor = [UIColor clearColor];
-        number.font = [UIFont fontWithName:@"Helvetica" size:40.0];
-        number.textColor = foregroundColor;
-        number.textAlignment = UITextAlignmentCenter;
-        number.alpha = [book.bakerPageNumbersAlpha floatValue];
+        UILabel *number = nil;
+        if( [book.bakerPageNumbers boolValue] ) {
+            // # Flip Interaction
+            number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth / 2 - 115,
+                                                                        pageHeight * i + (pageHeight - 55) / 2,
+                                                                        115, 30)];
+    //        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth * i + (pageWidth - 115) / 2, pageHeight / 2 - 55, 115, 30)];
+            number.backgroundColor = [UIColor clearColor];
+            number.font = [UIFont fontWithName:@"Helvetica" size:40.0];
+            number.textColor = foregroundColor;
+            number.textAlignment = UITextAlignmentCenter;
+            number.alpha = [book.bakerPageNumbersAlpha floatValue];
 
-        number.text = [NSString stringWithFormat:@"%d", i + 1];
-        if ([book.bakerStartAtPage intValue] < 0) {
-            number.text = [NSString stringWithFormat:@"%d", totalPages - i];
+            number.text = [NSString stringWithFormat:@"%d", i + 1];
+            if ([book.bakerStartAtPage intValue] < 0) {
+                number.text = [NSString stringWithFormat:@"%d", totalPages - i];
+            }
+
+            [scrollView addSubview:number];
+            [number release];
         }
-
-        [scrollView addSubview:number];
-        [number release];
 
 
         // ****** Title
-        PageTitleLabel *title = [[PageTitleLabel alloc]initWithFile:[pages objectAtIndex: i] color:foregroundColor alpha:[book.bakerPageNumbersAlpha floatValue]];
-        // # Flip Interaction
-        // Necessary?
-        // + 20 is for clock-bar height
-        [title setX:( pageWidth / 2 )
-                  Y:( pageHeight * i + ((pageHeight - title.frame.size.height) / 2 ) + 20 )];
-//        [title setX:(pageWidth * i + ((pageWidth - title.frame.size.width) / 2)) Y:(pageHeight / 2 + 20)];
-        [scrollView addSubview:title];
-        [title release];
+        PageTitleLabel *title = nil;
+        if( [book.bakerPageTitle boolValue] ) {
+            title = [[PageTitleLabel alloc]initWithFile:[pages objectAtIndex: i] color:foregroundColor alpha:[book.bakerPageNumbersAlpha floatValue]];
+            // # Flip Interaction
+            // + 20 is for clock-bar height
+            [title setX:( pageWidth / 2 )
+                      Y:( pageHeight * i + ((pageHeight - title.frame.size.height) / 2 ) + 20 )];
+    //        [title setX:(pageWidth * i + ((pageWidth - title.frame.size.width) / 2)) Y:(pageHeight / 2 + 20)];
+            [scrollView addSubview:title];
+            [title release];
+        }
 
 
         // ****** Store instances for later use
-        NSMutableDictionary *details = [NSMutableDictionary dictionaryWithObjectsAndKeys:spinner, @"spinner", number, @"number", title, @"title", backgroundView, @"background", nil];
+        NSMutableDictionary *details = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+            spinner, @"spinner",
+            number, @"number",
+            title, @"title",
+            backgroundView, @"background",
+            nil
+        ];
         [pageDetails insertObject:details atIndex:i];
     }
 }

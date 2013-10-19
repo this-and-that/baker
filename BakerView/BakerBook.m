@@ -57,8 +57,10 @@
 @synthesize bakerBackground;
 @synthesize bakerBackgroundImagePortrait;
 @synthesize bakerBackgroundImageLandscape;
+@synthesize bakerPageNumbers;
 @synthesize bakerPageNumbersColor;
 @synthesize bakerPageNumbersAlpha;
+@synthesize bakerPageTitle;
 @synthesize bakerPageScreenshots;
 
 @synthesize bakerRendering;
@@ -180,8 +182,10 @@
     self.bakerBackground               = [bookData objectForKey:@"-baker-background"];
     self.bakerBackgroundImagePortrait  = [bookData objectForKey:@"-baker-background-image-portrait"];
     self.bakerBackgroundImageLandscape = [bookData objectForKey:@"-baker-background-image-landscape"];
+    self.bakerPageNumbers              = [bookData objectForKey:@"-baker-page-numbers"];
     self.bakerPageNumbersColor         = [bookData objectForKey:@"-baker-page-numbers-color"];
     self.bakerPageNumbersAlpha         = [bookData objectForKey:@"-baker-page-numbers-alpha"];
+    self.bakerPageTitle                = [bookData objectForKey:@"-baker-page-title"];
     self.bakerPageScreenshots          = [bookData objectForKey:@"-baker-page-screenshots"];
 
     self.bakerRendering          = [bookData objectForKey:@"-baker-rendering"];
@@ -209,11 +213,17 @@
     if (self.bakerBackground == nil) {
         self.bakerBackground = @"#000000";
     }
+    if (self.bakerPageNumbers == nil) {
+        self.bakerPageNumbers = [NSNumber numberWithBool:YES];
+    }
     if (self.bakerPageNumbersColor == nil) {
         self.bakerPageNumbersColor = @"#ffffff";
     }
     if (self.bakerPageNumbersAlpha == nil) {
         self.bakerPageNumbersAlpha = [NSNumber numberWithFloat:0.3];
+    }
+    if (self.bakerPageTitle == nil) {
+        self.bakerPageTitle = [NSNumber numberWithBool:YES];
     }
 
     if (self.bakerRendering == nil) {

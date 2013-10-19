@@ -56,8 +56,10 @@
 @property (copy, nonatomic) NSString *bakerBackground;
 @property (copy, nonatomic) NSString *bakerBackgroundImagePortrait;
 @property (copy, nonatomic) NSString *bakerBackgroundImageLandscape;
+@property (copy, nonatomic) NSNumber *bakerPageNumbers;
 @property (copy, nonatomic) NSString *bakerPageNumbersColor;
 @property (copy, nonatomic) NSNumber *bakerPageNumbersAlpha;
+@property (copy, nonatomic) NSNumber *bakerPageTitle;
 @property (copy, nonatomic) NSString *bakerPageScreenshots;
 
 @property (copy, nonatomic) NSString *bakerRendering;
