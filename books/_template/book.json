@@ -13,6 +13,7 @@
     "-baker-background": "#1e140f",
     "-baker-vertical-bounce": false,
     "-baker-media-autoplay": true,
+    "-baker-page-numbers": false,
     "-baker-page-numbers-color": "#1e140f",
     "-baker-page-title": false,
 

@@ -413,9 +413,9 @@
         UILabel *number = nil;
         if( [book.bakerPageNumbers boolValue] ) {
             // # Flip Interaction
-            number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth / 2 - 115,
-                                                                        pageHeight * i + (pageHeight - 55) / 2,
-                                                                        115, 30)];
+            number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth / 2 - (115 / 2),
+                                                               pageHeight * i + (pageHeight - 55) / 2,
+                                                               115, 30)];
     //        UILabel *number = [[UILabel alloc] initWithFrame:CGRectMake(pageWidth * i + (pageWidth - 115) / 2, pageHeight / 2 - 55, 115, 30)];
             number.backgroundColor = [UIColor clearColor];
             number.font = [UIFont fontWithName:@"Helvetica" size:40.0];
@@ -439,7 +439,7 @@
             title = [[PageTitleLabel alloc]initWithFile:[pages objectAtIndex: i] color:foregroundColor alpha:[book.bakerPageNumbersAlpha floatValue]];
             // # Flip Interaction
             // + 20 is for clock-bar height
-            [title setX:( pageWidth / 2 )
+            [title setX:( pageWidth / 2 - (115 / 2) )
                       Y:( pageHeight * i + ((pageHeight - title.frame.size.height) / 2 ) + 20 )];
     //        [title setX:(pageWidth * i + ((pageWidth - title.frame.size.width) / 2)) Y:(pageHeight / 2 + 20)];
             [scrollView addSubview:title];
