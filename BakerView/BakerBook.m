@@ -358,7 +358,9 @@
 {
     NSArray *shouldBeNumber = [NSArray arrayWithObjects:@"hpub",
                                                         @"zoomable",
+                                                        @"-baker-page-numbers",
                                                         @"-baker-page-numbers-alpha",
+                                                        @"-baker-page-title",
                                                         @"-baker-vertical-bounce",
                                                         @"-baker-vertical-pagination",
                                                         @"-baker-page-turn-tap",
@@ -451,8 +453,10 @@
     [bakerBackground release];
     [bakerBackgroundImagePortrait release];
     [bakerBackgroundImageLandscape release];
+    [bakerPageNumbers release];
     [bakerPageNumbersColor release];
     [bakerPageNumbersAlpha release];
+    [bakerPageTitle release];
     [bakerPageScreenshots release];
 
     [bakerRendering release];
