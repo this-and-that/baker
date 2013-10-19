@@ -121,7 +121,8 @@
     CGRect frame;
     if (hidden) {
         if ([self stickToLeft]) {
-            frame = CGRectMake(-actualIndexWidth, [self trueY] + pageHeight - actualIndexHeight, actualIndexWidth, actualIndexHeight);
+            frame = CGRectMake(0, [self trueY] - pageHeight, actualIndexWidth, actualIndexHeight);
+//            frame = CGRectMake(-actualIndexWidth, [self trueY] + pageHeight - actualIndexHeight, actualIndexWidth, actualIndexHeight);
         } else {
             frame = CGRectMake(0, [self trueY] + pageHeight, actualIndexWidth, actualIndexHeight);
         }
@@ -136,7 +137,7 @@
 
     if (animation) {
         [UIView beginAnimations:@"slideIndexView" context:nil]; {
-            [UIView setAnimationDuration:0.3];
+            [UIView setAnimationDuration:0.4];
 
             [self setViewFrame:frame];
         }

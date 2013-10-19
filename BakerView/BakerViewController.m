@@ -1828,7 +1828,7 @@
     navigationBar.frame = CGRectMake(newNavigationFrame.origin.x, -24, newNavigationFrame.size.width, newNavigationFrame.size.height);
     navigationBar.hidden = NO;
 
-    [UIView animateWithDuration:0.3
+    [UIView animateWithDuration:0.4
                           delay:0
                         options:UIViewAnimationOptionCurveEaseOut
                      animations:^{
