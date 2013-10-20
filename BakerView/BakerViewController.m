@@ -383,6 +383,7 @@
         // # Flip Interaction
         UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(0, pageHeight * i, pageWidth, pageHeight)];
 //        UIImageView *backgroundView = [[UIImageView alloc] initWithFrame:CGRectMake(pageWidth * i, 0, pageWidth, pageHeight)];
+        backgroundView.backgroundColor = [Utils colorWithHexString:book.bakerBackground]; // make sure background matches throughout
         [self setImageFor:backgroundView];
         [scrollView addSubview:backgroundView];
         [backgroundView release];
@@ -492,24 +493,20 @@
     [self lockPage:[NSNumber numberWithBool:NO]];
 }
 - (void)adjustScrollViewPosition {
-    // # Flip Interaction
     int scrollViewX = 0;
     int scrollViewY = 0;
     if (![UIApplication sharedApplication].statusBarHidden) {
-        // # Flip Interaction
         scrollViewX = 0;
         scrollViewY = -20;
     }
 
     // # Flip Interaction
+    // disable animation == better
+    scrollView.frame = CGRectMake(scrollViewX, -20, pageWidth, pageHeight);
 //    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
 //                     animations:^{
-//                         scrollView.frame = CGRectMake(scrollViewX, 0, pageWidth, pageHeight);
+//                         scrollView.frame = CGRectMake(scrollViewX, scrollViewY, pageWidth, pageHeight);
 //                     }];
-    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
-                     animations:^{
-                         scrollView.frame = CGRectMake(0, scrollViewY, pageWidth, pageHeight);
-                     }];
 }
 - (void)setPageSize:(NSString *)orientation {
     NSLog(@"[BakerView] Set size for orientation: %@", orientation);
@@ -929,7 +926,7 @@
     }
 }
 - (void)loadSlot:(int)slot withPage:(int)page {
-    //NSLog(@"[BakerView] Setting up slot %d with page %d.", slot, page);
+//    NSLog(@"[BakerView] Setting up slot %d with page %d.", slot, page);
 
     UIWebView *webView = [[[UIWebView alloc] init] autorelease];
     [self setupWebView:webView];
@@ -1042,17 +1039,17 @@
 //    return CGRectMake(pageWidth * (page - 1), 0, pageWidth, pageHeight);
 }
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scroll {
-    NSLog(@"[BakerView] Scrollview will begin dragging");
+//    NSLog(@"[BakerView] Scrollview will begin dragging");
     [self hideBars:[NSNumber numberWithBool:YES]];
 }
 - (void)scrollViewDidEndDragging:(UIScrollView *)scroll willDecelerate:(BOOL)decelerate {
-    NSLog(@"[BakerView] Scrollview did end dragging");
+//    NSLog(@"[BakerView] Scrollview did end dragging");
 }
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scroll {
-    NSLog(@"[BakerView] Scrollview will begin decelerating");
+//    NSLog(@"[BakerView] Scrollview will begin decelerating");
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scroll {
-    NSLog(@"[BakerView] Scrollview did end decelerating");
+//    NSLog(@"[BakerView] Scrollview did end decelerating");
 
     // # Flip Interaction
     int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
@@ -1329,8 +1326,7 @@
     [webView.scrollView setPagingEnabled:[Utils webViewShouldBePaged:webView forBook:book]];
 }
 - (void)webView:(UIWebView *)webView hidden:(BOOL)status animating:(BOOL)animating {
-
-    //NSLog(@"[BakerView] webView hidden: %d animating: %d", status, animating);
+    // NSLog(@"[BakerView] webView hidden: %d animating: %d", status, animating);
 
     if (animating) {
 
@@ -1844,7 +1840,7 @@
     UINavigationBar *navigationBar = self.navigationController.navigationBar;
 
     if (animateHiding) {
-        [UIView animateWithDuration:0.3
+        [UIView animateWithDuration:0.4
                               delay:0
                             options:UIViewAnimationOptionCurveEaseOut
                          animations:^{

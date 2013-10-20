@@ -6,15 +6,16 @@
     "creator": ["Ken Frederick"],
     "date": "2013-10-17",
     "url": "book://",
+    "cover": "images/cover.png",
 
     "orientation": "portrait",
     "zoomable": false,
 
-    "-baker-background": "#1e140f",
+    "-baker-background": "#FF00FF",
     "-baker-vertical-bounce": false,
     "-baker-media-autoplay": true,
     "-baker-page-numbers": false,
-    "-baker-page-numbers-color": "#1e140f",
+    "-baker-page-numbers-color": "#1E140F",
     "-baker-page-title": false,
 
     "contents": [
