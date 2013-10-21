@@ -86,7 +86,7 @@
 
         // ****** STATUS FILE
         bookStatus = [[BakerBookStatus alloc] initWithBookId:book.ID];
-        NSLog(@"[BakerView]     Status: page %@ @ scrollIndex %@px.", bookStatus.page, bookStatus.scrollIndex);
+        //NSLog(@"[BakerView]     Status: page %@ @ scrollIndex %@px.", bookStatus.page, bookStatus.scrollIndex);
 
 
         // ****** Initialize audio session for html5 audio
@@ -151,6 +151,33 @@
     scrollView.backgroundColor = [Utils colorWithHexString:book.bakerBackground];
 
     [self.view addSubview:scrollView];
+
+
+    // ****** GESTURE CALLBACK INIT
+    UISwipeGestureRecognizer *leftRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getLeftSwipe:)];
+    leftRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
+    [leftRecognizer setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:leftRecognizer];
+    [leftRecognizer release];
+
+    UISwipeGestureRecognizer *rightRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getRightSwipe:)];
+    rightRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+    [rightRecognizer setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:rightRecognizer];
+    [rightRecognizer release];
+
+    UISwipeGestureRecognizer *upRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getUpSwipe:)];
+    upRecognizer.direction = UISwipeGestureRecognizerDirectionUp;
+    [upRecognizer setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:upRecognizer];
+    [upRecognizer release];
+
+    UISwipeGestureRecognizer *downRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getDownSwipe:)];
+    downRecognizer.direction = UISwipeGestureRecognizerDirectionDown;
+    [downRecognizer setNumberOfTouchesRequired:1];
+    [self.view addGestureRecognizer:downRecognizer];
+    [downRecognizer release];
+
 
 
     // ****** BAKER BACKGROUND
@@ -460,6 +487,7 @@
     }
 }
 - (void)setImageFor:(UIImageView *)view {
+    view.backgroundColor = [Utils colorWithHexString:book.bakerBackground]; // make sure background matches throughout
     if (pageWidth > pageHeight && backgroundImageLandscape != NULL) {
         // Landscape
         view.image = backgroundImageLandscape;
@@ -528,9 +556,9 @@
 - (void)setTappableAreaSize {
     //NSLog(@"[BakerView] Set tappable area size");
 
-    int tappableAreaSize = screenBounds.size.width/16;
+    int tappableAreaSize = screenBounds.size.width/16; // 64px
     if (screenBounds.size.width < 768) {
-        tappableAreaSize = screenBounds.size.width/8;
+        tappableAreaSize = screenBounds.size.width/8;  // 96px
     }
 
     upTapArea    = CGRectMake(tappableAreaSize, 0, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
@@ -1052,23 +1080,24 @@
 //    NSLog(@"[BakerView] Scrollview did end decelerating");
 
     // # Flip Interaction
-    int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
-//    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
-    NSLog(@"[BakerView] Swiping to page: %d", page);
-
-    if (currentPageNumber != page) {
-
-        lastPageNumber = currentPageNumber;
-        currentPageNumber = page;
-
-        tapNumber = tapNumber + (lastPageNumber - currentPageNumber);
-
-        currentPageIsDelayingLoading = YES;
-        [self gotoPage];
-    }
+//    int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
+////    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
+//    NSLog(@"[BakerView] scroll.contentOffset.y: %f", scroll.contentOffset.y);
+//    NSLog(@"[BakerView] Swiping to page: %d", page);
+//
+//    if (currentPageNumber != page) {
+//
+//        lastPageNumber = currentPageNumber;
+//        currentPageNumber = page;
+//
+//        tapNumber = tapNumber + (lastPageNumber - currentPageNumber);
+//
+//        currentPageIsDelayingLoading = YES;
+//        [self gotoPage];
+//    }
 }
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scroll {
-    //NSLog(@"[BakerView] Scrollview did end scrolling animation");
+    NSLog(@"[BakerView] Scrollview did end scrolling animation");
 
     stackedScrollingAnimations--;
     if (stackedScrollingAnimations == 0) {
@@ -1118,7 +1147,7 @@
                 if ([[url scheme] isEqualToString:@"file"])
                 {
                     // ****** Handle: file://
-                    NSLog(@"[BakerView]     Page is a link with scheme file:// --> load internal link");
+                    //NSLog(@"[BakerView]     Page is a link with scheme file:// --> load internal link");
 
                     anchorFromURL  = [[url fragment] retain];
                     NSString *file = [[url relativePath] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
@@ -1148,7 +1177,7 @@
                 else if ([[url scheme] isEqualToString:@"mailto"])
                 {
                     // Handle mailto links using MessageUI framework
-                    NSLog(@"[BakerView]     Page is a link with scheme mailto: --> handle mail link");
+                    //NSLog(@"[BakerView]     Page is a link with scheme mailto: --> handle mail link");
 
                     // Build temp array and dictionary
                     NSArray *tempArray = [[url absoluteString] componentsSeparatedByString:@"?"];
@@ -1252,7 +1281,7 @@
                             //NSLog(@"[BakerView]     replacement pattern: %@", [replacerRegexp pattern]);
                             NSString *newURL = [replacerRegexp stringByReplacingMatchesInString:oldURL options:0 range:NSMakeRange(0, [oldURL length]) withTemplate:@""];
 
-                            NSLog(@"[BakerView]     Opening in Safari with URL: %@", newURL);
+                            //NSLog(@"[BakerView]     Opening in Safari with URL: %@", newURL);
                             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:newURL]];
 
                             return NO;
@@ -1483,7 +1512,7 @@
 
     if (![self checkScreeshotForPage:pageNumber andOrientation:interfaceOrientation])
     {
-        //NSLog(@"[BakerView] Taking screenshot of page %d", pageNumber);
+        NSLog(@"[BakerView] Taking screenshot of page %d", pageNumber);
 
         NSString *screenshotFile = [cachedScreenshotsPath stringByAppendingPathComponent:[NSString stringWithFormat:@"screenshot-%@-%i.jpg", interfaceOrientation, pageNumber]];
         UIImage *screenshot = nil;
@@ -1607,7 +1636,7 @@
      */
 
     CGPoint tapPoint = [touch locationInView:self.view];
-    //NSLog(@"[BakerView] User tap at [%f, %f]", tapPoint.x, tapPoint.y);
+    NSLog(@"[BakerView] User tap at [%f, %f]", tapPoint.x, tapPoint.y);
 
     // Swipe or scroll the page.
     if (!currentPageIsLocked)
@@ -1682,6 +1711,31 @@
 - (void)getDownTap:(UIWebView *)webView currentPage:(int)pageNumber {
     NSString *jsCommand = [NSString stringWithFormat:@"window.onDownTap(%d);", pageNumber];
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+
+- (void)getLeftSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+    int page = currentPageNumber;
+    NSLog(@"[BakerView]   >>> SWIPE LEFT   %d --> %d", currentPageNumber, page);
+//    NSString *jsCommand = [NSString stringWithFormat:@"window.onLeftSwipe(%d);", currentPageNumber];
+//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getRightSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+    int page = currentPageNumber;
+    NSLog(@"[BakerView]   <<< SWIPE RIGHT   %d --> %d", currentPageNumber, page);
+//    NSString *jsCommand = [NSString stringWithFormat:@"window.onRightSwipe(%d);", currentPageNumber];
+//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getUpSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+    int page = currentPageNumber + 1;
+    NSLog(@"[BakerView]   ^^^ SWIPE UP   %d --> %d", currentPageNumber, page);
+//    NSString *jsCommand = [NSString stringWithFormat:@"window.onUpSwipe(%d);", currentPageNumber];
+//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+}
+- (void)getDownSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+    int page = currentPageNumber - 1;
+    NSLog(@"[BakerView]   vvv SWIPE DOWN   %d --> %d", currentPageNumber, page);
+//    NSString *jsCommand = [NSString stringWithFormat:@"window.onDownSwipe(%d);", currentPageNumber];
+//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
 
 
@@ -1799,7 +1853,7 @@
 - (void)toggleBars {
     // if modal view is up, don't toggle.
     if (!self.modalViewController) {
-        NSLog(@"[BakerView] Toggle bars visibility");
+        //NSLog(@"[BakerView] Toggle bars visibility");
         UIApplication *sharedApplication = [UIApplication sharedApplication];
         BOOL hidden = sharedApplication.statusBarHidden;
 

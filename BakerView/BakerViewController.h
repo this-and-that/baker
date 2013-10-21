@@ -173,6 +173,10 @@
 - (void)getRightTap:(UIWebView *)webView currentPage:(int)pageNumber;
 - (void)getUpTap:(UIWebView *)webView currentPage:(int)pageNumber;
 - (void)getDownTap:(UIWebView *)webView currentPage:(int)pageNumber;
+- (void)getLeftSwipe:(UISwipeGestureRecognizer*)gestureRecognizer;
+- (void)getRightSwipe:(UISwipeGestureRecognizer*)gestureRecognizer;
+- (void)getUpSwipe:(UISwipeGestureRecognizer*)gestureRecognizer;
+- (void)getDownSwipe:(UISwipeGestureRecognizer*)gestureRecognizer;
 
 #pragma mark - PAGE SCROLLING
 - (void)setCurrentPageWidth;
