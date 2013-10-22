@@ -1718,7 +1718,7 @@
 
 
 /****************************************************************************************************
- * These functions handles all of the supported navigation swipe gestures
+ * These functions handle all of the supported navigation swipe gestures
  * up, down, left, right
  */
 - (void)getLeftSwipe:(UISwipeGestureRecognizer*)recognizer {
