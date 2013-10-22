@@ -1720,36 +1720,34 @@
  * up, down, left, right
  */
 - (void)getLeftSwipe:(UISwipeGestureRecognizer*)recognizer {
-    int page = currentPageNumber;
-    NSLog(@"[BakerView]   >>> SWIPE LEFT   %d --> %d", currentPageNumber, page);
+    //NSLog(@"[BakerView]   >>> SWIPE LEFT   %d --> %d", currentPageNumber, page);
 
     if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
-        [currPage stringByEvaluatingJavaScriptFromString:@"window.onLeftSwipe(66);"];
+        [currPage stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.onLeftSwipe('%d');", currentPageNumber]];
     }
 }
 - (void)getRightSwipe:(UISwipeGestureRecognizer*)recognizer {
-    int page = currentPageNumber;
-    NSLog(@"[BakerView]   <<< SWIPE RIGHT   %d --> %d", currentPageNumber, page);
+    //NSLog(@"[BakerView]   <<< SWIPE RIGHT   %d --> %d", currentPageNumber, page);
 
     if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
-        [currPage stringByEvaluatingJavaScriptFromString:@"window.onRightSwipe(11);"];
+        [currPage stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.onRightSwipe('%d');", currentPageNumber]];
     }
 }
 - (void)getUpSwipe:(UISwipeGestureRecognizer*)recognizer {
-    int page = currentPageNumber + 1;
-    NSLog(@"[BakerView]   ^^^ SWIPE UP   %d --> %d", currentPageNumber, page);
+    int page = currentPageNumber +  1;
+    //NSLog(@"[BakerView]   ^^^ SWIPE UP   %d --> %d", currentPageNumber, page);
 
     if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
-        [currPage stringByEvaluatingJavaScriptFromString:@"window.onUpSwipe(61);"];
+        [currPage stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.onUpSwipe('%d');", currentPageNumber]];
         [self changePage:page];
     }
 }
 - (void)getDownSwipe:(UISwipeGestureRecognizer*)recognizer {
     int page = currentPageNumber - 1;
-    NSLog(@"[BakerView]   vvv SWIPE DOWN   %d --> %d", currentPageNumber, page);
+    //NSLog(@"[BakerView]   vvv SWIPE DOWN   %d --> %d", currentPageNumber, page);
 
     if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
-        [currPage stringByEvaluatingJavaScriptFromString:@"window.onDownSwipe(16);"];
+        [currPage stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"window.onDownSwipe('%d');", currentPageNumber]];
         [self changePage:page];
     }
 }
