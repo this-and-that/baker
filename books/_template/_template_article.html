@@ -75,7 +75,7 @@
 		<!-- build:js scripts/vendor/jquery.js -->
 		<!-- JQUERY -->
 		<script type="text/javascript" src="bower_components/jquery/jquery.js"></script>
-        <!-- script type="text/javascript" src="bower_components/onepage-scroll/jquery.onepage-scroll.js"></script -->
+        <script type="text/javascript" src="bower_components/onepage-scroll/jquery.onepage-scroll.js"></script>
 		<script type="text/javascript" src="bower_components/Lettering.js/jquery.lettering.js"></script>
 		<!-- endbuild -->
 
@@ -91,7 +91,7 @@
 		<script type="text/javascript">
 			filename = null;
 
-            
+
             // Baker callbacks
 			function onLeftTap(articleIndex) {
 				// alert( articleIndex );
@@ -104,6 +104,19 @@
 			};
 			function onDownTap(articleIndex) {
 				// alert( articleIndex );
+			};
+
+            function onLeftSwipe(articleIndex) {
+				alert( articleIndex );
+			};
+			function onRightSwipe(articleIndex) {
+				alert( articleIndex );
+			};
+			function onUpSwipe(articleIndex) {
+				alert( articleIndex );
+			};
+			function onDownSwipe(articleIndex) {
+				alert( articleIndex );
 			};
 
 

@@ -153,27 +153,31 @@
     [self.view addSubview:scrollView];
 
 
-    // ****** GESTURE CALLBACK INIT
+    // ****** GESTURE RECOGNIZING INIT
     UISwipeGestureRecognizer *leftRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getLeftSwipe:)];
     leftRecognizer.direction = UISwipeGestureRecognizerDirectionLeft;
+    leftRecognizer.cancelsTouchesInView = NO;
     [leftRecognizer setNumberOfTouchesRequired:1];
     [self.view addGestureRecognizer:leftRecognizer];
     [leftRecognizer release];
 
     UISwipeGestureRecognizer *rightRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getRightSwipe:)];
     rightRecognizer.direction = UISwipeGestureRecognizerDirectionRight;
+    rightRecognizer.cancelsTouchesInView = NO;
     [rightRecognizer setNumberOfTouchesRequired:1];
     [self.view addGestureRecognizer:rightRecognizer];
     [rightRecognizer release];
 
     UISwipeGestureRecognizer *upRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getUpSwipe:)];
     upRecognizer.direction = UISwipeGestureRecognizerDirectionUp;
+    upRecognizer.cancelsTouchesInView = NO;
     [upRecognizer setNumberOfTouchesRequired:1];
     [self.view addGestureRecognizer:upRecognizer];
     [upRecognizer release];
 
     UISwipeGestureRecognizer *downRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(getDownSwipe:)];
     downRecognizer.direction = UISwipeGestureRecognizerDirectionDown;
+    downRecognizer.cancelsTouchesInView = NO;
     [downRecognizer setNumberOfTouchesRequired:1];
     [self.view addGestureRecognizer:downRecognizer];
     [downRecognizer release];
@@ -897,6 +901,8 @@
         }
         else
         {
+            // ****** SCREENSHOTS METHOD
+
             tapNumber = 0;
 
             [toLoad removeAllObjects];
@@ -954,7 +960,7 @@
     }
 }
 - (void)loadSlot:(int)slot withPage:(int)page {
-//    NSLog(@"[BakerView] Setting up slot %d with page %d.", slot, page);
+      //NSLog(@"[BakerView] Setting up slot %d with page %d.", slot, page);
 
     UIWebView *webView = [[[UIWebView alloc] init] autorelease];
     [self setupWebView:webView];
@@ -1067,38 +1073,33 @@
 //    return CGRectMake(pageWidth * (page - 1), 0, pageWidth, pageHeight);
 }
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scroll {
-//    NSLog(@"[BakerView] Scrollview will begin dragging");
+    //NSLog(@"[BakerView] Scrollview will begin dragging");
     [self hideBars:[NSNumber numberWithBool:YES]];
 }
 - (void)scrollViewDidEndDragging:(UIScrollView *)scroll willDecelerate:(BOOL)decelerate {
-//    NSLog(@"[BakerView] Scrollview did end dragging");
+    //NSLog(@"[BakerView] Scrollview did end dragging");
 }
 - (void)scrollViewWillBeginDecelerating:(UIScrollView *)scroll {
-//    NSLog(@"[BakerView] Scrollview will begin decelerating");
+    //NSLog(@"[BakerView] Scrollview will begin decelerating");
 }
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scroll {
-//    NSLog(@"[BakerView] Scrollview did end decelerating");
-
     // # Flip Interaction
-//    int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
-////    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
-//    NSLog(@"[BakerView] scroll.contentOffset.y: %f", scroll.contentOffset.y);
-//    NSLog(@"[BakerView] Swiping to page: %d", page);
-//
-//    if (currentPageNumber != page) {
-//
-//        lastPageNumber = currentPageNumber;
-//        currentPageNumber = page;
-//
-//        tapNumber = tapNumber + (lastPageNumber - currentPageNumber);
-//
-//        currentPageIsDelayingLoading = YES;
-//        [self gotoPage];
-//    }
+    int page = (int)(scroll.contentOffset.y / pageHeight) + 1;
+//    int page = (int)(scroll.contentOffset.x / pageWidth) + 1;
+
+    if (currentPageNumber != page) {
+
+        lastPageNumber = currentPageNumber;
+        currentPageNumber = page;
+
+        tapNumber = tapNumber + (lastPageNumber - currentPageNumber);
+
+        currentPageIsDelayingLoading = YES;
+        [self gotoPage];
+    }
 }
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scroll {
-    NSLog(@"[BakerView] Scrollview did end scrolling animation");
-
+    //NSLog(@"[BakerView] Scrollview did end scrolling animation");
     stackedScrollingAnimations--;
     if (stackedScrollingAnimations == 0) {
         //NSLog(@"[BakerView]     Scroll enabled");
@@ -1615,6 +1616,7 @@
     } else if (touch.phase == UITouchPhaseMoved) {
         userIsScrolling = YES;
     }
+    //NSLog(@"[BakerView] user is scrolling %d", userIsScrolling);
 
     if (shouldPropagateInterceptedTouch) {
         if (userIsScrolling) {
@@ -1636,7 +1638,7 @@
      */
 
     CGPoint tapPoint = [touch locationInView:self.view];
-    NSLog(@"[BakerView] User tap at [%f, %f]", tapPoint.x, tapPoint.y);
+    //NSLog(@"[BakerView] User tap at [%f, %f]", tapPoint.x, tapPoint.y);
 
     // Swipe or scroll the page.
     if (!currentPageIsLocked)
@@ -1713,30 +1715,45 @@
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
 
-- (void)getLeftSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+/****************************************************************************************************
+ * These functions handles all of the supported navigation swipe gestures
+ * up, down, left, right
+ */
+- (void)getLeftSwipe:(UISwipeGestureRecognizer*)recognizer {
     int page = currentPageNumber;
     NSLog(@"[BakerView]   >>> SWIPE LEFT   %d --> %d", currentPageNumber, page);
-//    NSString *jsCommand = [NSString stringWithFormat:@"window.onLeftSwipe(%d);", currentPageNumber];
-//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+
+    if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
+        [currPage stringByEvaluatingJavaScriptFromString:@"window.onLeftSwipe(66);"];
+    }
 }
-- (void)getRightSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+- (void)getRightSwipe:(UISwipeGestureRecognizer*)recognizer {
     int page = currentPageNumber;
     NSLog(@"[BakerView]   <<< SWIPE RIGHT   %d --> %d", currentPageNumber, page);
-//    NSString *jsCommand = [NSString stringWithFormat:@"window.onRightSwipe(%d);", currentPageNumber];
-//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+
+    if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
+        [currPage stringByEvaluatingJavaScriptFromString:@"window.onRightSwipe(11);"];
+    }
 }
-- (void)getUpSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+- (void)getUpSwipe:(UISwipeGestureRecognizer*)recognizer {
     int page = currentPageNumber + 1;
     NSLog(@"[BakerView]   ^^^ SWIPE UP   %d --> %d", currentPageNumber, page);
-//    NSString *jsCommand = [NSString stringWithFormat:@"window.onUpSwipe(%d);", currentPageNumber];
-//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+
+    if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
+        [currPage stringByEvaluatingJavaScriptFromString:@"window.onUpSwipe(61);"];
+        [self changePage:page];
+    }
 }
-- (void)getDownSwipe:(UISwipeGestureRecognizer*)gestureRecognizer {
+- (void)getDownSwipe:(UISwipeGestureRecognizer*)recognizer {
     int page = currentPageNumber - 1;
     NSLog(@"[BakerView]   vvv SWIPE DOWN   %d --> %d", currentPageNumber, page);
-//    NSString *jsCommand = [NSString stringWithFormat:@"window.onDownSwipe(%d);", currentPageNumber];
-//    [webView stringByEvaluatingJavaScriptFromString:jsCommand];
+
+    if (scrollView.scrollEnabled == NO && [indexViewController isIndexViewHidden] == YES) {
+        [currPage stringByEvaluatingJavaScriptFromString:@"window.onDownSwipe(16);"];
+        [self changePage:page];
+    }
 }
+
 
 
 #pragma mark - PAGE SCROLLING
@@ -1780,7 +1797,7 @@
     {
         if (targetOffset < 0) targetOffset = 0;
 
-        //NSLog(@"[BakerView] Scrolling page up to %d", targetOffset);
+        NSLog(@"[BakerView] Scrolling page up to %d", targetOffset);
         [self scrollPage:currPage to:[NSString stringWithFormat:@"%d", targetOffset] animating:animating];
     }
 }
@@ -2100,7 +2117,8 @@
 - (BOOL)isIndexView:(UIWebView *)webView {
     if (webView == indexViewController.view) {
         return YES;
-    } else {
+    }
+    else {
         return NO;
     }
 }

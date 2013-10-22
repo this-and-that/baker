@@ -16,6 +16,7 @@
     "-baker-page-numbers": false,
     "-baker-page-numbers-color": "#1E140F",
     "-baker-page-title": false,
+    "-baker-page-turn-swipe": false,
 
     "contents": [
         "index.html",

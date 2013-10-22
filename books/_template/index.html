@@ -92,7 +92,70 @@
 
 	<!-- page specific -->
 	<script type="text/javascript">
-	</script>
+        filename = null;
+
+
+        // Baker callbacks
+        function onLeftTap(articleIndex) {
+            // alert( articleIndex );
+        };
+        function onRightTap(articleIndex) {
+            // alert( articleIndex );
+        };
+        function onUpTap(articleIndex) {
+            // alert( articleIndex );
+        };
+        function onDownTap(articleIndex) {
+            // alert( articleIndex );
+        };
+
+        function onLeftSwipe(articleIndex) {
+            alert( articleIndex );
+        };
+        function onRightSwipe(articleIndex) {
+            alert( articleIndex );
+        };
+        function onUpSwipe(articleIndex) {
+            alert( articleIndex );
+        };
+        function onDownSwipe(articleIndex) {
+            alert( articleIndex );
+        };
+
+
+        /*
+         *	There must be a cleaner way to deal with
+         *	visibility states for onLoad... onPage... etc.
+         */
+        // initial state
+        function onReady(pageIndex) {
+            // alert( pageIndex );
+        };
+
+
+        // onepage-scroll callbacks
+        // Article
+        function onArticleLoad(pageIndex) {
+            // alert( pageIndex );
+        };
+        function onBeforeArticlePage(pageIndex) {
+            // alert( pageIndex );
+        };
+        function onAfterArticlePage(pageIndex) {
+            // alert( pageIndex );
+        };
+        
+        // Gallery
+        function onGalleryLoad(pageIndex) {
+            // alert( pageIndex );
+        };
+        function onBeforeGalleryPage(pageIndex) {
+            // alert( pageIndex );
+        };
+        function onAfterGalleryPage(pageIndex) {
+            // alert( pageIndex );
+        };
+        </script>
 
 
 
