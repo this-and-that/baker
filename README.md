@@ -21,13 +21,13 @@ HOW TO USE BAKER
 Creating an ebook in HTML5 to be used with Baker is a three-steps operation.
 It's easier done than said! ;)
 
-**NOTE This is a modified version of Baker (4.1), with a focus on a flipped UI model from the original Baker. The modification works so that articles are navigated via and up - down swipe, and paging through article contenet is a left - right swipe. The challenge introduced is, content must be produced with this in mind.**
+**NOTE This is a modified version of Baker (4.1), with a focus on a flipped UI model from the original Baker. The modification works so that articles are navigated via and up - down swipe, and paging through article content is a left - right swipe. The challenge introduced is, content must be produced with this in mind.**
 
 ![Baker Flippe UI Model](https://dl.dropboxusercontent.com/u/7038255/baker_flipped_ui_model.png)
 
 **I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing my [Yeoman](http://yeoman.io/) generator for creating interactive magazines. Stay Tuned.**
 
-**In addition I have introduced additonal extensions such as JavaScript callbacks for tap and swipe events, as well as, additional visualization properties within `book.json`, see the Change Log below.**
+**In addition I have introduced additional extensions such as JavaScript callbacks for tap and swipe events, as well as, additional visualization properties within `book.json`, see the Change Log below.**
 
 
 1. DESIGN
@@ -130,7 +130,7 @@ BUGS AND FEEDBACK
 
 
 
-CHANGELOG
+CHANGE LOG
 ---------
 
 * **4.1.1** (22/10/2013)
@@ -143,7 +143,7 @@ CHANGELOG
 * **4.1** (06/05/2012)
   * In-App Purchases for your magazine issues (server required)
   * Paid Subscriptions support (server required)
-  * Push notifications capabilit (server required)
+  * Push notifications capability (server required)
   * Baker API defined to allow third-party servers
   * Vertical pagination flexibility with `<meta name="paged" content="YES">`
   * Issue data can now be refreshed
@@ -221,7 +221,7 @@ CHANGELOG
   * Added support to open a specific page of a downloaded book
   * Added support to remove vertical bounce (for non-scrolling books)
   * Added support to enable automatic media playback
-  * Changed the gesture to open the status bar to the more reliable doubletap
+  * Changed the gesture to open the status bar to the more reliable double-tap
   * Fix: page anchors now handled in internal links
   * Fix: orientationchange event now fires
   * Minimum supported version: iOS 3.2
@@ -233,7 +233,7 @@ CHANGELOG
   * Link support (internal/external)
   * Multitap page navigation
   * Alphabetical ordering (WARNING: breaks previous books, check before upgrading)
-  * Statusbar on tap
+  * Status-bar on tap
   * Full screen swipes
   * Fix: now the previous page doesn't flash anymore when you change page
   * Minor fixes
@@ -246,7 +246,7 @@ LICENSE
 -------
 
   _Copyright (C) 2010-2013, Davide Casali, Marco Colombo, Alessandro Morandi_
-  _Licensed under **BSD Opensource License** (free for personal and commercial use)_
+  _Licensed under **BSD Open source License** (free for personal and commercial use)_
 
 
 > _Elementary, my dear Watson._
