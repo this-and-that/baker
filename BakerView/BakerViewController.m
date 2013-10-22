@@ -534,7 +534,7 @@
 
     // # Flip Interaction
     // disable animation == better
-    scrollView.frame = CGRectMake(scrollViewX, -20, pageWidth, pageHeight);
+    scrollView.frame = CGRectMake(scrollViewX, scrollViewY, pageWidth, pageHeight);
 //    [UIView animateWithDuration:UINavigationControllerHideShowBarDuration
 //                     animations:^{
 //                         scrollView.frame = CGRectMake(scrollViewX, scrollViewY, pageWidth, pageHeight);
@@ -570,6 +570,7 @@
     leftTapArea  = CGRectMake(0, tappableAreaSize, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
     rightTapArea = CGRectMake(pageWidth - tappableAreaSize, tappableAreaSize, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
 }
+
 - (void)showPageDetails {
     //NSLog(@"[BakerView] Show page details for the book pages");
 
@@ -1699,21 +1700,22 @@
 }
 
 - (void)getLeftTap:(UIWebView *)webView currentPage:(int)pageNumber {
-    NSString *jsCommand = [NSString stringWithFormat:@"window.onLeftTap(%d);", pageNumber];
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onLeftTap('%d');", pageNumber];
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
 - (void)getRightTap:(UIWebView *)webView currentPage:(int)pageNumber {
-    NSString *jsCommand = [NSString stringWithFormat:@"window.onRightTap(%d);", pageNumber];
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onRightTap('%d');", pageNumber];
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
 - (void)getUpTap:(UIWebView *)webView currentPage:(int)pageNumber {
-    NSString *jsCommand = [NSString stringWithFormat:@"window.onUpTap(%d);", pageNumber];
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onUpTap('%d');", pageNumber];
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
 - (void)getDownTap:(UIWebView *)webView currentPage:(int)pageNumber {
-    NSString *jsCommand = [NSString stringWithFormat:@"window.onDownTap(%d);", pageNumber];
+    NSString *jsCommand = [NSString stringWithFormat:@"window.onDownTap('%d');", pageNumber];
     [webView stringByEvaluatingJavaScriptFromString:jsCommand];
 }
+
 
 /****************************************************************************************************
  * These functions handles all of the supported navigation swipe gestures
@@ -1929,8 +1931,7 @@
         [indexViewController setIndexViewHidden:YES withAnimation:YES];
     }
 }
-- (void)handleBookProtocol:(NSURL *)url
-{
+- (void)handleBookProtocol:(NSURL *)url {
     // ****** Handle: book://
     NSLog(@"[BakerView]     Page is a link with scheme book:// --> download new book");
     if ([[url pathExtension] isEqualToString:@"html"]) {

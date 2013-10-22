@@ -21,6 +21,14 @@ HOW TO USE BAKER
 Creating an ebook in HTML5 to be used with Baker is a three-steps operation.
 It's easier done than said! ;)
 
+
+0. QUICK NOTE
+  This is a modified version of Baker (4.1), with a focus on a flipped UI model from the original Baker. The modification works so that articles are navigated via and up - down swipe, and paging through article contenet is a left - right swipe. The challenge introduced is, content must be produced with this in mind.
+
+  ![Baker Flippe UI Model](https://dl.dropboxusercontent.com/u/7038255/baker_flipped_ui_model.png)
+
+  I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing a [Yeoman]: http://yeoman.io/ generator for creating interactive magazines. Stay Tuned.
+
 1. DESIGN
    * Create you publication as one or more **HTML5 files** like a standalone website
    * Design your publication to fit multiple screen (using CSS media-queries)
@@ -123,6 +131,13 @@ BUGS AND FEEDBACK
 
 CHANGELOG
 ---------
+
+* **4.1.1** (22/10/2013)
+  * Flipped UI model: left - right paging, up - down article change
+  * JavaScript callbacks for tap events `onLeftTap(articleIndex)`, `onRightTap(articleIndex)`, `onUpTap(articleIndex)`, `onDownTap(articleIndex)`
+  * Swipe gestures for article navigations, incl javascript callbacks `onLeftSwipe(articleIndex)`, `onRightSwipe(articleIndex)`, `onUpSwipe(articleIndex)`, `onDownSwipe(articleIndex)`
+  * Added visualization properties `baker-page-numbers`, `baker-page-title`,
+  * Fixed 'background color bug', `-baker-background` applies to all view backgrounds
 
 * **4.1** (06/05/2012)
   * In-App Purchases for your magazine issues (server required)
