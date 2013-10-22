@@ -21,13 +21,12 @@ HOW TO USE BAKER
 Creating an ebook in HTML5 to be used with Baker is a three-steps operation.
 It's easier done than said! ;)
 
+**NOTE This is a modified version of Baker (4.1), with a focus on a flipped UI model from the original Baker. The modification works so that articles are navigated via and up - down swipe, and paging through article contenet is a left - right swipe. The challenge introduced is, content must be produced with this in mind.**
 
-**0. QUICK NOTE
-  This is a modified version of Baker (4.1), with a focus on a flipped UI model from the original Baker. The modification works so that articles are navigated via and up - down swipe, and paging through article contenet is a left - right swipe. The challenge introduced is, content must be produced with this in mind.
+![Baker Flippe UI Model](https://dl.dropboxusercontent.com/u/7038255/baker_flipped_ui_model.png)
 
-  ![Baker Flippe UI Model](https://dl.dropboxusercontent.com/u/7038255/baker_flipped_ui_model.png)
+**I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing a [Yeoman]: http://yeoman.io/ generator for creating interactive magazines. Stay Tuned.**
 
-  I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing a [Yeoman]: http://yeoman.io/ generator for creating interactive magazines. Stay Tuned.**
 
 1. DESIGN
    * Create you publication as one or more **HTML5 files** like a standalone website
