@@ -25,7 +25,9 @@ It's easier done than said! ;)
 
 ![Baker Flippe UI Model](https://dl.dropboxusercontent.com/u/7038255/baker_flipped_ui_model.png)
 
-**I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing a [Yeoman](http://yeoman.io/) generator for creating interactive magazines. Stay Tuned.**
+**I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing my [Yeoman](http://yeoman.io/) generator for creating interactive magazines. Stay Tuned.**
+
+**In addition I have introduced additonal extensions such as JavaScript callbacks for tap and swipe events, as well as, additional visualization properties within `book.json`.**
 
 
 1. DESIGN
