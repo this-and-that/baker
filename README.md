@@ -27,7 +27,7 @@ It's easier done than said! ;)
 
 **I have included a rough template: `books/_template` which demonstrates one method of creating left - right paginated HTML pages. In the future, I plan on releasing my [Yeoman](http://yeoman.io/) generator for creating interactive magazines. Stay Tuned.**
 
-**In addition I have introduced additonal extensions such as JavaScript callbacks for tap and swipe events, as well as, additional visualization properties within `book.json`.**
+**In addition I have introduced additonal extensions such as JavaScript callbacks for tap and swipe events, as well as, additional visualization properties within `book.json`, see the Change Log below.**
 
 
 1. DESIGN
