@@ -558,12 +558,11 @@
 //    scrollView.contentSize = CGSizeMake(pageWidth * totalPages, pageHeight);
 }
 - (void)setTappableAreaSize {
-    //NSLog(@"[BakerView] Set tappable area size");
-
-    int tappableAreaSize = screenBounds.size.width/16; // 64px
+    int tappableAreaSize = screenBounds.size.width/12; // 64px
     if (screenBounds.size.width < 768) {
-        tappableAreaSize = screenBounds.size.width/8;  // 96px
+        tappableAreaSize = screenBounds.size.width/6;  // 96px
     }
+    NSLog(@"[BakerView] Set tappable area size   %d", tappableAreaSize);
 
     upTapArea    = CGRectMake(tappableAreaSize, 0, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
     downTapArea  = CGRectMake(tappableAreaSize, pageHeight - tappableAreaSize, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
