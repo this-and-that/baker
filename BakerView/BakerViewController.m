@@ -564,10 +564,11 @@
     }
     NSLog(@"[BakerView] Set tappable area size   %d", tappableAreaSize);
 
-    upTapArea    = CGRectMake(tappableAreaSize, 0, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
-    downTapArea  = CGRectMake(tappableAreaSize, pageHeight - tappableAreaSize, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
-    leftTapArea  = CGRectMake(0, tappableAreaSize, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
-    rightTapArea = CGRectMake(pageWidth - tappableAreaSize, tappableAreaSize, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
+    int tapAreaYOffset = -20; // compensate for status bar height
+    upTapArea    = CGRectMake(tappableAreaSize, 0 + tapAreaYOffset, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
+    downTapArea  = CGRectMake(tappableAreaSize, (pageHeight - tappableAreaSize)  + tapAreaYOffset, pageWidth - (tappableAreaSize * 2), tappableAreaSize);
+    leftTapArea  = CGRectMake(0, tappableAreaSize + tapAreaYOffset, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
+    rightTapArea = CGRectMake(pageWidth - tappableAreaSize, tappableAreaSize + tapAreaYOffset, tappableAreaSize, pageHeight - (tappableAreaSize * 2));
 }
 
 - (void)showPageDetails {
@@ -585,6 +586,7 @@
 
         if (pageDetails.count > i && [pageDetails objectAtIndex:i] != nil) {
 
+            // ****** DEBUG: TAP AREAS
             NSDictionary *details = [NSDictionary dictionaryWithDictionary:[pageDetails objectAtIndex:i]];
 
             for (NSString *key in details) {
@@ -678,6 +680,7 @@
     if (!webView.scalesPageToFit) {
         [self removeWebViewDoubleTapGestureRecognizer:webView];
     }
+
 }
 - (void)removeWebViewDoubleTapGestureRecognizer:(UIView *)view
 {
@@ -1641,8 +1644,40 @@
     //NSLog(@"[BakerView] User tap at [%f, %f]", tapPoint.x, tapPoint.y);
 
     // Swipe or scroll the page.
-    if (!currentPageIsLocked)
-    {
+    if (!currentPageIsLocked) {
+
+        // # Tap Area Debug
+//        if ( CGRectContainsPoint(upTapArea, tapPoint) || CGRectContainsPoint(downTapArea, tapPoint) ||
+//             CGRectContainsPoint(leftTapArea, tapPoint) || CGRectContainsPoint(rightTapArea, tapPoint) ) {
+//            float r = ((rand() % 255) / 255.0f);
+//            float g = ((rand() % 255) / 255.0f);
+//            float b = ((rand() % 255) / 255.0f);
+//            float a = 0.05f;
+//            UIImageView *upRect = [[UIImageView alloc]initWithImage:nil];
+//            [upRect setBackgroundColor:[UIColor colorWithRed:r green:g blue:b alpha:a]];
+//            [upRect setFrame:upTapArea];
+//            [self.view addSubview:upRect];
+//            [self.view bringSubviewToFront:upRect];
+//
+//            UIImageView *downRect = [[UIImageView alloc]initWithImage:nil];
+//            [downRect setBackgroundColor:[UIColor colorWithRed:r green:g blue:b alpha:a]];
+//            [downRect setFrame:downTapArea];
+//            [self.view addSubview:downRect];
+//            [self.view bringSubviewToFront:downRect];
+//
+//            UIImageView *leftRect = [[UIImageView alloc]initWithImage:nil];
+//            [leftRect setBackgroundColor:[UIColor colorWithRed:r green:g blue:b alpha:a]];
+//            [leftRect setFrame:leftTapArea];
+//            [self.view addSubview:leftRect];
+//            [self.view bringSubviewToFront:leftRect];
+//
+//            UIImageView *rightRect = [[UIImageView alloc]initWithImage:nil];
+//            [rightRect setBackgroundColor:[UIColor colorWithRed:r green:g blue:b alpha:a]];
+//            [rightRect setFrame:rightTapArea];
+//            [self.view addSubview:rightRect];
+//            [self.view bringSubviewToFront:rightRect];
+//        }
+
         // # Flip Interaction
         if (CGRectContainsPoint(upTapArea, tapPoint) || CGRectContainsPoint(downTapArea, tapPoint)) {
             int page = 0;
