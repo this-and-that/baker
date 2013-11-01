@@ -50,16 +50,15 @@ var article = {};
 
 
 /*
- *  Events
- */
-var scrollContainer = '.article';
-var scrollSelector = '.page';
-
-
-/*
  *  Callbacks
  */
 function onReady(pageIndex) {};
+
+// baker callbacks
+function onLeftTap(articleIndex) {};
+function onRightTap(articleIndex) {};
+function onUpTap(articleIndex) {};
+function onDownTap(articleIndex) {};
 
 // onepage-scroll callbacks
 // Article
@@ -79,8 +78,6 @@ var bRedirected = false;
 
 
 
-
-
 // ------------------------------------------------------------------------
 //
 // Loaded
@@ -89,14 +86,11 @@ var bRedirected = false;
 /*
  *  DOM is loaded
  */
-// $(function() {
 $(document).load(function() {
     /*
      *  Orientation
      */
-    angle = 0; // orienation angle
-    isRotated = false;
-
+    // check device type
     ios = navigator.userAgent.match(/(iPhone)|(iPod)|(iPad)/);
     device.isiPad   = (navigator.userAgent.match(/iPad/i) != null);
     device.isiPhone  = (navigator.userAgent.match(/iPhone/i) != null);
@@ -106,7 +100,8 @@ $(document).load(function() {
 
     // initial orientation check
     orientation = 'landscape';
-    orientationChange();
+    angle = orientationChange(); // orienation angle
+
 
     /*
      *  Check Connection status
@@ -116,7 +111,6 @@ $(document).load(function() {
         window.location = './oops.html';
         bRedirected = true;
     }
-
 
 });
 
@@ -133,7 +127,33 @@ $(document).load(function() {
  */
 $(document).ready(function() {
     /*
-     *  Links
+     *  Initialization
+     */
+    loadArticle();
+    angle = orientationChange(); // orienation angle
+
+
+    /*
+     *  Pages
+     */
+    // set placement of pages
+    paginate();
+
+    // get active page
+    onReady( $('.article .page-marker .active').data('index') );
+
+    // serve up retina images
+    $('img').retina('@2x');
+
+    // set bootstrap carousel globally
+    $('.carousel').carousel({
+        interval: 5000,
+        pause: 'false'
+    });
+
+
+    /*
+     *  Events
      */
     // $('a').click( function(event) {
     //  event.preventDefault();
@@ -162,66 +182,58 @@ $(document).ready(function() {
     // });
 
 
-    /*
-     *  Misc
-     */
-    loadArticle();
-    orientationChange();
+    // $('a').bind('click touchstart', function(e) {
+    //   // alert("I'm a " + e.type);
+    //   console.log( $(this).attr('href') );
+    //   // $(this).trigger('click');
+    //   // e.preventDefault();
+    // });
 
-    // get active page
-    onReady( $(scrollContainer + ' ' + scrollSelector + '.active').data('index') );
 
-    // serve up retina images
-    $('img').retina('@2x');
+//  $('#scroll-back').on('touchend touchcancel mouseup', function(e){
+//      alert('touchend touchcancel mouseup');
+//      $(this).on('click', handleClose);
+//  });
 
-    // set carousel globally
-    $('.carousel').carousel({
-        interval: 5000,
-        pause: 'false'
+    var clicked = false;
+    $('div').each(function() {
+        var clicked = false;
+        $(this).bind('click', function() {
+            if(!clicked) return !(clicked = true);
+        });
     });
 
 
-    /*
-     *  Events
-     */
-    // $('a').bind('click touchstart', function(e) {
-        // alert("I'm a " + e.type);
-        // e.preventDefault();
-    // });
-
     $('#main-menu').bind('click touchstart', function() {
-        console.log( '#main-menu' );
         $('.baseline-grid-view').toggleOpacity();
     });
 
-    // if the link is a gallery link, then it should
-    // not only open the gallery, but to the right page
     // $('.gallery-link').click(function() {
     $('.gallery-link').bind('click touchstart', function() {
-        toggleGallery( $(this) );
+        toggleGallery( $(this).data('index') );
     });
     $('#gallery-close').bind('click touchstart', function() {
-        toggleGallery( $(this) );
+        toggleGallery();
     });
 
 
     // http://stackoverflow.com/questions/1207008/how-do-i-lock-the-orientation-to-portrait-mode-in-a-iphone-web-application
     // $(window)
     //  .bind('orientationchange', function(){
-    //      if (window.orientation % 180 == 0){
-    //          $(document.body).css('-webkit-transform-origin', '')
-    //              .css('-webkit-transform', '');
-    //      }
-    //      else {
-    //          if ( window.orientation > 0) { //clockwise
-    //              $(document.body).css('-webkit-transform-origin', '200px 190px')
-    //                  .css('-webkit-transform',  'rotate(-90deg)');
-    //          }
-    //          else {
-    //              $(document.body).css('-webkit-transform-origin', '280px 190px')
-    //                      .css('-webkit-transform',  'rotate(90deg)');
-    //          }
-    //      }
+    //    if (window.orientation % 180 == 0){
+    //        $(document.body).css('-webkit-transform-origin', '')
+    //            .css('-webkit-transform', '');
+    //    }
+    //    else {
+    //        if ( window.orientation > 0) { //clockwise
+    //            $(document.body).css('-webkit-transform-origin', '200px 190px')
+    //                .css('-webkit-transform',  'rotate(-90deg)');
+    //        }
+    //        else {
+    //            $(document.body).css('-webkit-transform-origin', '280px 190px')
+    //                    .css('-webkit-transform',  'rotate(90deg)');
+    //        }
+    //    }
     //   })
     //  .trigger('orientationchange');
 
@@ -237,72 +249,37 @@ $(document).ready(function() {
 /*
  *  Orientation
  */
-//
-//  TODO: tweak orientation settings to procure correct angle
-//
-function orientationChange() {
-    /*
-     *  Orientation
-     */
-    isRotated = true;
-
-    // angle = window.orientation;
-
-    // if(window.orientation == 90 || window.orientation == -90)    orientation = 'landscape';
-    if(window.orientation == 0 || window.orientation == 180) orientation = 'portrait';
+// TODO: tweak orientation settings to procure correct angle
+var orientationChange = function() {
+    if(window.orientation == 90 || window.orientation == -90) {
+        orientation = 'landscape';
+    }
+    if(window.orientation == 0 || window.orientation == 180) {
+        orientation = 'portrait';
+    }
 
     if (window.orientation == -90) {
-        angle = 90;
+        return 90;
     }
-    if (window.orientation == 90) {
-        angle = -90;
+    else if (window.orientation == 90) {
+        return -90;
     }
-    if (window.orientation == 0) {
-        angle = 0;
+    else if (window.orientation == 0) {
+        return 0;
     }
-
-
-    /*
-     *  Pages
-     */
-    // set placement of pages
-    paginate();
-
 };
 
 
 // ------------------------------------------------------------------------
 function paginate() {
 
-    $('.gallery').onepage_scroll({
-        sectionContainer: '.gallery ' + scrollSelector
-        // easing: 'cubic-bezier(.02, .01, .47, 1)',
-        // // first page = last page = easeOutBounce
-        // animationTime: 400,
-        // pagination: false,
-        // updateURL: true,
-        // direction: 'horizontal',
-        // touchTarget: '#navigation',
-        // // loop: true,
-
-        // onLoad: function(pageIndex) {
-        //  onGalleryLoad(pageIndex);
-        // },
-        // beforeMove: function(pageIndex, nextIndex) {
-        //  onBeforeGalleryPage(pageIndex, nextIndex);
-        // },
-        // afterMove: function(pageIndex) {
-        //  onAfterGalleryPage(pageIndex);
-        // }
-    });
-
+    // set up article for pagination
     $('.article').onepage_scroll({
-        sectionContainer: '.article ' + scrollSelector,
+        sectionContainer: '.page-marker',
         easing: 'cubic-bezier(.02, .01, .47, 1)',
-        // first page = last page = easeOutBounce
         animationTime: 500,
         pagination: false,
-        updateURL: true,
+        // updateURL: true,
         direction: 'horizontal',
         touchTarget: '#navigation',
 
@@ -317,31 +294,64 @@ function paginate() {
         }
     });
 
+    // set up gallery for pagination
+    $('.gallery').onepage_scroll({
+        sectionContainer: '.image-marker',
+        easing: 'cubic-bezier(.02, .01, .47, 1)',
+        animationTime: 500,
+        pagination: false,
+        updateURL: true,
+        direction: 'horizontal',
+        touchTarget: '#navigation',
+        // loop: true,
+
+        onLoad: function(pageIndex) {
+         onGalleryLoad(pageIndex);
+        },
+        beforeMove: function(pageIndex, nextIndex) {
+         onBeforeGalleryPage(pageIndex, nextIndex);
+        },
+        afterMove: function(pageIndex) {
+         onAfterGalleryPage(pageIndex);
+        }
+    });
+    // toggle gallery class, so that it doesn't scroll
+    $('.gallery').find('.image').toggleClass('image-marker');
+
 };
 
 // ------------------------------------------------------------------------
-function scrollBack() {
-    $(scrollContainer).moveUp();
+function scrollBack(element) {
+    var element = ( $('.gallery').css('opacity') != 0 )
+        ? '.gallery'
+        : '.article';
+    $(element).moveUp();
 };
-function scrollForward() {
-    $(scrollContainer).moveDown();
+function scrollForward(element) {
+    var element = ( $('.gallery').css('opacity') != 0 )
+        ? '.gallery'
+        : '.article';
+    $(element).moveDown();
 };
-function scrollTo(element) {
-    var index = $(element).data('index');
-    var delta = index - ($(scrollSelector+'.active').data('index') - 1);
-    if( delta > 0 ) {
-        $(scrollContainer).moveDown(Math.abs(delta)-1);
-    }
-    else {
-        $(scrollContainer).moveUp(Math.abs(delta)+1);
-    }
-};
-
 
 // ------------------------------------------------------------------------
-function toggleGallery(element) {
+function toggleGallery(pageIndex) {
+    // fade in the actual gallery
     $('.gallery').toggleOpacity();
+    // fade in gallery navigation
     $('.gallery-navigation').toggleOpacity();
+    // enable interactions
+    $('.gallery-navigation').togglePointerEvents();
+
+    // toggle image class and...
+    $('.gallery').find('.image').toggleClass('image-marker');
+    // toggle page class to ensure swipe gestures only paginate gallery
+    $('.article').find('.page').toggleClass('page-marker');
+
+    // not only open the gallery, but to the right page
+    if( pageIndex != undefined ) {
+        $('.gallery').moveTo(pageIndex);
+    }
 };
 
 // ------------------------------------------------------------------------
@@ -354,6 +364,16 @@ $.fn.toggleOpacity = function(val) {
     }
     $(this).css('opacity',
         (val) ? 1.0 : 0.0
+    );
+};
+
+$.fn.togglePointerEvents = function(val) {
+    if( val == undefined ) {
+        var pointer_events = $(this).css('pointer-events');
+        val = (pointer_events !== 'none') ? false : true;
+    }
+    $(this).css('pointer-events',
+        (val) ? 'auto' : 'none'
     );
 };
 
@@ -397,8 +417,8 @@ $.fn.fadeToBlack = function(toggleClass, onPage, currentPage, nextPage) {
 // load the article as a from a .json file
 // the idea is to make editing and updating easier
 // a pseudo-cms
-// TODO: eventually like to use markdown, but unsure
-// where to start
+// TODO: eventually i would like to use markdown,
+// but unsure where to start
 function loadArticle(structure) {
     structure = (structure != undefined)
         ? structure
@@ -428,12 +448,12 @@ function loadArticle(structure) {
 
             structure = {
                 subject:    jsonToHtml( subject, 'subject' ),
-                title:      jsonToHtml( title, 'title' ),
-                author:     jsonToHtml( author, 'author' ),
-                intro:      jsonToHtml( intro, 'intro' ),
-                main:       jsonToHtml( main, 'main' ),
+                title:    jsonToHtml( title, 'title' ),
+                author:  jsonToHtml( author, 'author' ),
+                intro:    jsonToHtml( intro, 'intro' ),
+                main:      jsonToHtml( main, 'main' ),
                 interview:  jsonToHtml( interview, 'interview' ),
-                images:     jsonToHtml( images, 'captions' )
+                images:  jsonToHtml( images, 'captions' )
             };
 
         });
@@ -444,6 +464,8 @@ function loadArticle(structure) {
 
 // might be worth doing this without jquery
 // http://stackoverflow.com/questions/327047/what-is-the-most-efficient-way-to-create-html-elements-using-jquery
+// TODO: eventually i would like to use markdown,
+// but unsure where to start
 function jsonToHtml(arr, idName) {
     var i = 0;
     var id = '';
@@ -525,7 +547,8 @@ function deleteSession(name) {
 //
 // ------------------------------------------------------------------------
 $(window).resize(function() {
-    orientationChange();
+    angle = orientationChange();
+    paginate();
 });
 
 
